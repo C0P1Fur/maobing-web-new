@@ -825,31 +825,6 @@ a:hover { color: var(--lemon-yellow); }
 /* ========================================
    GLASSMORPHISM ID CARD (floating)
    ======================================== */
-.glass-id-card {
-  position: fixed;
-  bottom: 24px;
-  right: 24px;
-  z-index: 100;
-  padding: 12px 20px;
-  background: var(--glass-bg);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius-md);
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  color: var(--text-secondary);
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  transition: all var(--transition-fast);
-  cursor: url('src/cursor-default.png') 1 1, pointer;
-}
-
-.glass-id-card:hover {
-  border-color: var(--royal-blue);
-  box-shadow: 0 0 24px var(--royal-blue-glow);
-}
 
 .glass-domain-badge {
   position: fixed;
@@ -876,18 +851,6 @@ a:hover { color: var(--lemon-yellow); }
   color: transparent;
 }
 
-.glass-id-dot {
-  width: 8px; height: 8px;
-  border-radius: 50%;
-  background: var(--lemon-yellow);
-  box-shadow: 0 0 8px var(--lemon-yellow-glow);
-  animation: dotPulse 2s ease-in-out infinite;
-}
-
-@keyframes dotPulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
-}
 
 /* ========================================
    RESPONSIVE
@@ -911,7 +874,7 @@ a:hover { color: var(--lemon-yellow); }
     grid-template-columns: 1fr;
   }
 
-  .glass-id-card { bottom: 12px; right: 12px; font-size: 0.7rem; }
+
   .glass-domain-badge { bottom: 12px; left: 12px; font-size: 0.7rem; }
 }
 
@@ -1232,12 +1195,6 @@ a:hover { color: var(--lemon-yellow); }
   <p class="footer-text">Designed &amp; Built with <span class="accent">&lt;/&gt;</span> by Maobing &mdash; &copy; 2026</p>
 </footer>
 
-<!-- FLOATING ID CARD -->
-<div class="glass-id-card" id="idCard">
-  <div class="glass-id-dot"></div>
-  <span>RUNNING</span>
-</div>
-
 <div class="glass-domain-badge"><span>maobing.top</span></div>
 
 <!-- SCRIPTS -->
@@ -1275,6 +1232,7 @@ a:hover { color: var(--lemon-yellow); }
   const TILE_SIZE    = 120;   // 图片显示大小（px）
   const TILE_SPACING = 6;    // 每隔几个网格格绘制一张（1=每格都画）
   const TILE_ALPHA   = 0.50; // 图片透明度
+  const TILE_ROT_V   = 0.015; // 图片旋转角速度（弧度/像素滚动）
 
   let tileImg = null;
   let tileImgLoaded = false;
@@ -1405,7 +1363,7 @@ a:hover { color: var(--lemon-yellow); }
           if (!pt) continue;
           ctx.save();
           ctx.translate(pt.x, pt.y);
-          ctx.rotate(Math.PI / 4); // 逆时针 90°
+          ctx.rotate(scrollOffset * TILE_ROT_V); // 旋转角速度
           ctx.drawImage(tileImg, -TILE_SIZE / 2, -TILE_SIZE / 2, TILE_SIZE, TILE_SIZE);
           ctx.restore();
         }
@@ -1789,22 +1747,6 @@ a:hover { color: var(--lemon-yellow); }
   }, { threshold: 0.2 });
 
   observer.observe(grid);
-})();
-
-/* ========================================
-   GLASS ID CARD - COPY ON CLICK
-   ======================================== */
-(function() {
-  const idCard = document.getElementById('idCard');
-  idCard.addEventListener('click', () => {
-    const original = idCard.querySelector('span').textContent;
-    idCard.querySelector('span').textContent = 'COPIED!';
-    idCard.style.borderColor = 'var(--lemon-yellow)';
-    setTimeout(() => {
-      idCard.querySelector('span').innerHTML = 'MAOBING<span style="color:var(--text-dim)">@dev</span>';
-      idCard.style.borderColor = 'var(--glass-border)';
-    }, 1500);
-  });
 })();
 
 /* ========================================

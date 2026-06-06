@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MAOBING // Dev Blog</title>
+<title>MaoBing's sancturary | 猫冰的避难所</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -114,46 +114,6 @@ a:hover { color: var(--lemon-yellow); }
   );
 }
 
-/* ========================================
-   BACKGROUND TYPOGRAPHY — Right Side Vertical
-   ========================================
-   - 7 letters stacked in a flex column, filling 100vh
-   - Each letter rotated 90deg so bottom faces the right edge
-   - Tweak: adjust --letter-size to scale up/down
-   - Tweak: adjust opacity for lighter/darker watermark effect
-   ======================================== */
-.bg-typography {
-  position: fixed;
-  right: 0;
-  top: 0;
-  height: 100vh;
-  z-index: 1;
-  pointer-events: none;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  justify-content: space-between;
-  padding: 0;
-  user-select: none;
-  overflow: hidden;
-}
-
-.bg-typography span {
-  --letter-size: 20vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: var(--letter-size);
-  height: var(--letter-size);
-  margin: -3.0vh 0;
-  font-family: var(--font-mono);
-  font-weight: 700;
-  font-size: var(--letter-size);
-  color: #ffffff;
-  opacity: 0.25;
-  line-height: 1;
-  transform: rotate(-90deg);
-}
 
 /* ========================================
    SECTION COMMONS
@@ -891,6 +851,31 @@ a:hover { color: var(--lemon-yellow); }
   box-shadow: 0 0 24px var(--royal-blue-glow);
 }
 
+.glass-domain-badge {
+  position: fixed;
+  bottom: 24px;
+  left: 24px;
+  z-index: 100;
+  padding: 12px 20px;
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: var(--radius-md);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  user-select: all;
+}
+
+.glass-domain-badge span {
+  background-image: linear-gradient(90deg, #ff0000, #ff8800, #ffdd00, #00cc44, #0099ff, #6633ff, #ff00aa);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
 .glass-id-dot {
   width: 8px; height: 8px;
   border-radius: 50%;
@@ -927,6 +912,7 @@ a:hover { color: var(--lemon-yellow); }
   }
 
   .glass-id-card { bottom: 12px; right: 12px; font-size: 0.7rem; }
+  .glass-domain-badge { bottom: 12px; left: 12px; font-size: 0.7rem; }
 }
 
 @media (max-width: 480px) {
@@ -1153,10 +1139,6 @@ a:hover { color: var(--lemon-yellow); }
 <canvas id="grid-canvas"></canvas>
 <div class="scanlines"></div>
 
-<!-- BACKGROUND TYPOGRAPHY — under avatar, right side -->
-<div class="bg-typography">
-  <span>M</span><span>A</span><span>O</span><span>B</span><span>I</span><span>N</span><span>G</span>
-</div>
 
 <!-- SECTION 1: HERO -->
 <section class="hero" id="home">
@@ -1253,8 +1235,10 @@ a:hover { color: var(--lemon-yellow); }
 <!-- FLOATING ID CARD -->
 <div class="glass-id-card" id="idCard">
   <div class="glass-id-dot"></div>
-  <span>MAOBING<span style="color:var(--text-dim)">@dev</span></span>
+  <span>RUNNING</span>
 </div>
+
+<div class="glass-domain-badge"><span>maobing.top</span></div>
 
 <!-- SCRIPTS -->
 <script>
@@ -1291,6 +1275,7 @@ a:hover { color: var(--lemon-yellow); }
   const TILE_SIZE    = 120;   // 图片显示大小（px）
   const TILE_SPACING = 6;    // 每隔几个网格格绘制一张（1=每格都画）
   const TILE_ALPHA   = 0.50; // 图片透明度
+  const TILE_ROT_V   = 0.015; // 图片旋转角速度（弧度/像素滚动）
 
   let tileImg = null;
   let tileImgLoaded = false;
@@ -1421,7 +1406,7 @@ a:hover { color: var(--lemon-yellow); }
           if (!pt) continue;
           ctx.save();
           ctx.translate(pt.x, pt.y);
-          ctx.rotate(Math.PI / 4); // 逆时针 90°
+          ctx.rotate(scrollOffset * TILE_ROT_V); // 旋转角速度
           ctx.drawImage(tileImg, -TILE_SIZE / 2, -TILE_SIZE / 2, TILE_SIZE, TILE_SIZE);
           ctx.restore();
         }
