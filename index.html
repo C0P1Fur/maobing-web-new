@@ -876,6 +876,9 @@ a:hover { color: var(--lemon-yellow); }
 
 
   .glass-domain-badge { bottom: 12px; left: 12px; font-size: 0.7rem; }
+  .theme-toggle-btn { top: 16px; right: 16px; width: 38px; height: 38px; }
+  .theme-toggle-btn .icon-sun,
+  .theme-toggle-btn .icon-moon { width: 17px; height: 17px; }
 }
 
 @media (max-width: 480px) {
@@ -1053,6 +1056,121 @@ a:hover { color: var(--lemon-yellow); }
   color: var(--text-dim);
 }
 
+/* ========================================
+   THEME TOGGLE BUTTON — 右上角毛玻璃日月切换按钮
+   ======================================== */
+.theme-toggle-btn {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  z-index: 1002;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  cursor: url('src/cursor-default.png') 1 1, pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+  overflow: visible;
+  color: #e8e8f0;
+  will-change: transform;
+  /* 弹簧缩放由 JS 驱动，CSS 仅提供基础样式 */
+}
+
+.theme-toggle-btn:hover {
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 28px rgba(65, 105, 225, 0.3);
+}
+
+/* 日月图标 —— 绝对定位居中，通过 opacity/transform 切换 */
+.theme-toggle-btn .icon-sun,
+.theme-toggle-btn .icon-moon {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  pointer-events: none;
+  transition: opacity 0.35s ease,
+              transform 0.45s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+}
+
+/* 暗色模式默认：显示太阳图标（暗示可切到亮色） */
+.theme-toggle-btn .icon-sun {
+  opacity: 1;
+  transform: rotate(0deg) scale(1);
+}
+.theme-toggle-btn .icon-moon {
+  opacity: 0;
+  transform: rotate(-90deg) scale(0.3);
+}
+
+/* 亮色模式：显示月亮图标（暗示可切回暗色） */
+html[data-theme="light"] .theme-toggle-btn .icon-sun {
+  opacity: 0;
+  transform: rotate(90deg) scale(0.3);
+}
+html[data-theme="light"] .theme-toggle-btn .icon-moon {
+  opacity: 1;
+  transform: rotate(0deg) scale(1);
+}
+
+/* 亮色模式下按钮配色微调 */
+html[data-theme="light"] .theme-toggle-btn {
+  color: #555;
+  background: rgba(0, 0, 0, 0.06);
+  border-color: rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+html[data-theme="light"] .theme-toggle-btn:hover {
+  border-color: rgba(0, 0, 0, 0.18);
+  box-shadow: 0 4px 28px rgba(0, 0, 0, 0.12);
+}
+
+/* ========================================
+   THEME RIPPLE OVERLAY — 全屏圆形波纹转场层（Canvas 实现）
+   层级说明：位于 grid-canvas(z:0) 之上、scanlines(z:1) 之上，
+            内容板块(z:2+) 之下，确保只影响背景视觉。
+   使用 Canvas + rAF 替代 CSS clip-path transition，
+   避免浏览器合成器导致的闪烁问题。
+   ======================================== */
+#ripple-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* 亮色模式底层背景色覆盖 */
+html[data-theme="light"] body {
+  background: #f0f0f5;
+}
+
+/* 亮色模式：汉堡菜单按钮线条改为深色 */
+html[data-theme="light"] .hamburger-line {
+  background: #444;
+}
+
+/* 亮色模式：左下角玻璃域名徽标适配 */
+html[data-theme="light"] .glass-domain-badge {
+  background: rgba(0, 0, 0, 0.06);
+  border-color: rgba(0, 0, 0, 0.12);
+}
+
+/* 亮色模式：头像环绕文字从白色切换为深色（★ 保持蓝色不变） */
+html[data-theme="light"] .hero-avatar-ring text {
+  fill: #333;
+}
+
 </style>
 </head>
 <body>
@@ -1062,6 +1180,26 @@ a:hover { color: var(--lemon-yellow); }
   <span class="hamburger-line"></span>
   <span class="hamburger-line"></span>
   <span class="hamburger-line"></span>
+</button>
+
+<!-- THEME TOGGLE BUTTON -->
+<button class="theme-toggle-btn" id="themeToggleBtn" aria-label="切换日间/夜间模式">
+  <!-- 太阳图标（暗色模式下显示，点击切换到亮色） -->
+  <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+    <circle cx="12" cy="12" r="5"/>
+    <line x1="12" y1="1" x2="12" y2="3"/>
+    <line x1="12" y1="21" x2="12" y2="23"/>
+    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+    <line x1="1" y1="12" x2="3" y2="12"/>
+    <line x1="21" y1="12" x2="23" y2="12"/>
+    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+  </svg>
+  <!-- 月亮图标（亮色模式下显示，点击切换到暗色） -->
+  <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+  </svg>
 </button>
 
 <!-- SIDEBAR OVERLAY -->
@@ -1102,6 +1240,8 @@ a:hover { color: var(--lemon-yellow); }
 <canvas id="grid-canvas"></canvas>
 <div class="scanlines"></div>
 
+<!-- THEME RIPPLE LAYER — Canvas 全屏圆形波纹转场 -->
+<canvas id="ripple-canvas"></canvas>
 
 <!-- SECTION 1: HERO -->
 <section class="hero" id="home">
@@ -1301,7 +1441,9 @@ a:hover { color: var(--lemon-yellow); }
     depY += depVY;
 
     // ---- 3. 清屏：深蓝色背景 ----
-    ctx.fillStyle = '#060b18';
+    /* 根据当前主题决定网格背景填充色（暗色=深蓝黑 / 亮色=浅灰白） */
+	    var isLight = document.documentElement.getAttribute('data-theme') === 'light';
+	    ctx.fillStyle = isLight ? '#f0f0f5' : '#060b18';
     ctx.fillRect(0, 0, w, h);
 
     // ---- 4. 计算可见网格范围 ----
@@ -1811,6 +1953,180 @@ a:hover { color: var(--lemon-yellow); }
   document.addEventListener('mousedown', () => html.classList.add('cursor-pressed'));
   document.addEventListener('mouseup', () => html.classList.remove('cursor-pressed'));
   document.addEventListener('mouseleave', () => html.classList.remove('cursor-pressed'));
+})();
+
+/* ========================================
+   THEME SWITCHER — 日间/夜间模式 + Canvas 圆形波纹转场 + 弹簧按钮
+
+   波纹原理（Canvas 实现，避免 CSS clip-path 闪烁）：
+     在 #ripple-canvas（z-index:1，位于网格背景与内容之间）上，
+     用 requestAnimationFrame 逐帧绘制从按钮中心向外扩散的实心圆。
+     动画结束先更新主题让 grid-canvas 切换到新背景，再清除波纹画布。
+   弹簧原理：
+     弹簧-阻尼物理模型，requestAnimationFrame 驱动按钮 scale，
+     按下压缩到 0.82→过冲到 1.05→衰减归位，产生 Q 弹手感。
+   ======================================== */
+(function() {
+  const rippleCanvas = document.getElementById('ripple-canvas');
+  const rctx = rippleCanvas.getContext('2d');
+  const btn = document.getElementById('themeToggleBtn');
+
+  /* ---- 状态 ---- */
+  let currentTheme = localStorage.getItem('theme') || 'dark';
+  let isTransitioning = false;
+
+  /* ---- 弹簧物理参数 ---- */
+  let springScale = 1;
+  let springVel = 0;
+  let springTarget = 1;
+  const SPRING_STIFF = 0.28;
+  const SPRING_DAMP  = 0.72;
+  let springRaf = null;
+
+  function springStep() {
+    var force = (springTarget - springScale) * SPRING_STIFF;
+    springVel += force;
+    springVel *= SPRING_DAMP;
+    springScale += springVel;
+    btn.style.transform = 'scale(' + springScale + ')';
+    if (Math.abs(springScale - springTarget) < 0.0005 && Math.abs(springVel) < 0.0005) {
+      btn.style.transform = 'scale(' + springTarget + ')';
+      springScale = springTarget;
+      springVel = 0;
+      springRaf = null;
+      return;
+    }
+    springRaf = requestAnimationFrame(springStep);
+  }
+
+  function startSpring() {
+    if (!springRaf) springRaf = requestAnimationFrame(springStep);
+  }
+
+  /* ---- 按钮弹簧交互 ---- */
+  btn.addEventListener('mouseenter', function() {
+    if (isTransitioning) return;
+    springTarget = 1.08;
+    startSpring();
+  });
+  btn.addEventListener('mouseleave', function() {
+    if (isTransitioning) return;
+    springTarget = 1.0;
+    startSpring();
+  });
+  btn.addEventListener('mousedown', function(e) {
+    if (isTransitioning) return;
+    e.preventDefault();
+    springTarget = 0.82;
+    startSpring();
+  });
+  btn.addEventListener('mouseup', function() {
+    if (isTransitioning) return;
+    springTarget = 1.0;
+    startSpring();
+  });
+  document.addEventListener('mouseup', function() {
+    if (isTransitioning) return;
+    if (springTarget === 0.82) { springTarget = 1.0; startSpring(); }
+  });
+
+  /* ---- 初始化主题 ---- */
+  function applyTheme(theme) {
+    currentTheme = theme;
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
+  }
+  applyTheme(currentTheme);
+
+  /* ---- Canvas 尺寸 ---- */
+  function resizeRippleCanvas() {
+    rippleCanvas.width  = window.innerWidth;
+    rippleCanvas.height = window.innerHeight;
+  }
+
+  /* ---- Canvas 波纹动画核心 ---- */
+  function startRipple(cx, cy, targetBg, onDone) {
+    var DURATION = 850;            // 动画总时长 (ms)
+    // 计算需要覆盖全屏的最大半径：按钮中心到屏幕四角的最大距离 + 余量
+    var w = window.innerWidth;
+    var h = window.innerHeight;
+    var corners = [
+      [0, 0], [w, 0], [0, h], [w, h]
+    ];
+    var maxR = 0;
+    for (var i = 0; i < corners.length; i++) {
+      var dx = corners[i][0] - cx;
+      var dy = corners[i][1] - cy;
+      var d = Math.sqrt(dx * dx + dy * dy);
+      if (d > maxR) maxR = d;
+    }
+    maxR = Math.ceil(maxR) + 10; // +10px 安全余量，防止边缘漏出
+
+    resizeRippleCanvas();
+    rctx.clearRect(0, 0, rippleCanvas.width, rippleCanvas.height);
+
+    var startTime = performance.now();
+
+    function drawFrame(now) {
+      var elapsed = now - startTime;
+      var t = Math.min(elapsed / DURATION, 1.0);
+
+      // easeOutCubic：起始快、末尾减速，模拟海浪扩散的自然衰减
+      var eased = 1 - Math.pow(1 - t, 3);
+      var r = eased * maxR;
+
+      // 清空上一帧 → 绘制实心圆（fill = 目标主题背景色）
+      rctx.clearRect(0, 0, rippleCanvas.width, rippleCanvas.height);
+      rctx.beginPath();
+      rctx.arc(cx, cy, Math.max(r, 0.5), 0, Math.PI * 2);
+      rctx.fillStyle = targetBg;
+      rctx.fill();
+
+      if (t < 1.0) {
+        requestAnimationFrame(drawFrame);
+      } else {
+        // 动画结束：圆已完全覆盖屏幕
+        // ① 先切换主题 → grid-canvas 下一帧读取新 data-theme 绘制新背景
+        // ② 双重 rAF 等待 grid-canvas 完成绘制
+        // ③ 再清除波纹画布，露出已更新的 grid-canvas
+        if (onDone) onDone();
+        requestAnimationFrame(function() {
+          requestAnimationFrame(function() {
+            rctx.clearRect(0, 0, rippleCanvas.width, rippleCanvas.height);
+          });
+        });
+      }
+    }
+
+    requestAnimationFrame(drawFrame);
+  }
+
+  /* ---- 点击：触发波纹 + 主题切换 ---- */
+  btn.addEventListener('click', function() {
+    if (isTransitioning) return;
+
+    springTarget = 1.0;
+    startSpring();
+    isTransitioning = true;
+
+    // ★ 计算按钮几何中心坐标（视口坐标）—— 波纹扩散圆心 ★
+    var rect = btn.getBoundingClientRect();
+    var cx = rect.left + rect.width / 2;
+    var cy = rect.top + rect.height / 2;
+
+    // ★ 目标主题 = 当前主题的反向 ★
+    var targetTheme = currentTheme === 'dark' ? 'light' : 'dark';
+
+    // ★ 目标主题对应的背景色 ★
+    var targetBg = targetTheme === 'light' ? '#f0f0f5' : '#060b18';
+
+    // ★ 启动 Canvas 波纹动画：圆从按钮中心向外扩散填充全屏 ★
+    startRipple(cx, cy, targetBg, function() {
+      // 波纹动画完成（圆已覆盖全屏），更新主题数据
+      applyTheme(targetTheme);
+      isTransitioning = false;
+    });
+  });
 })();
 
 </script>
