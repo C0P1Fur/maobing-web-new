@@ -192,7 +192,7 @@ a:hover { color: var(--lemon-yellow); }
   position: relative;
   z-index: 2;
   padding: 80px 32px;
-  gap: 40px;
+  gap: 56px;
 }
 
 .hero-decoration {
@@ -293,28 +293,34 @@ a:hover { color: var(--lemon-yellow); }
   z-index: 3;
 }
 
-/* Circular text ring — SVG textPath orbiting the avatar */
-.hero-avatar-ring {
+/* Circular text ring — breather wrapper (scale) */
+.hero-avatar-ring-breathe {
   position: absolute;
-  top: -36px;
-  left: -36px;
-  width: calc(100% + 72px);
-  height: calc(100% + 72px);
+  top: -28px;
+  left: -28px;
+  width: calc(100% + 56px);
+  height: calc(100% + 56px);
   overflow: visible;
   pointer-events: none;
   user-select: none;
-  animation: ringTextSpin 15s linear infinite,
-             ringTextBreathe 4s ease-in-out infinite;
+  animation: ringTextBreathe 3s ease-in-out infinite;
   transform-origin: center center;
 }
 
-@keyframes ringTextSpin {
-  to { rotate: 360deg; }
+@keyframes ringTextBreathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
 }
 
-@keyframes ringTextBreathe {
-  0%, 100% { scale: 1; }
-  50% { scale: 1.05; }
+/* Circular text ring — SVG (rotation) */
+.hero-avatar-ring {
+  width: 100%;
+  height: 100%;
+  animation: ringTextSpin 15s linear infinite;
+}
+
+@keyframes ringTextSpin {
+  to { transform: rotate(360deg); }
 }
 
 /* Avatar frame — frosted glass */
@@ -829,17 +835,19 @@ a:hover { color: var(--lemon-yellow); }
   <div class="hero-decoration bottom-right">// CTRL+C to continue</div>
 
   <div class="hero-avatar-wrapper">
-    <svg class="hero-avatar-ring" viewBox="0 0 200 200">
-      <defs>
-        <path id="textCircle" d="M 100 8 A 92 92 0 1 1 99.99 8" />
-      </defs>
-      <text font-family="'JetBrains Mono', 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="12.5" fill="#ffffff"
-            font-weight="600" letter-spacing="3" text-anchor="middle">
-        <textPath href="#textCircle" startOffset="0%">
-          MAOBING <tspan fill="#4169E1">&#9733;</tspan> 猫冰 <tspan fill="#4169E1">&#9733;</tspan> MAOBING <tspan fill="#4169E1">&#9733;</tspan> 猫冰 <tspan fill="#4169E1">&#9733;</tspan> MAOBING <tspan fill="#4169E1">&#9733;</tspan> 猫冰 <tspan fill="#4169E1">&#9733;</tspan> MAOBING <tspan fill="#4169E1">&#9733;</tspan> 猫冰 <tspan fill="#4169E1">&#9733;</tspan> MAOBING <tspan fill="#4169E1">&#9733;</tspan> 猫冰
-        </textPath>
-      </text>
-    </svg>
+    <div class="hero-avatar-ring-breathe">
+      <svg class="hero-avatar-ring" viewBox="0 0 200 200">
+        <defs>
+          <path id="textCircle" d="M 100 8 A 92 92 0 1 1 99.99 8" />
+        </defs>
+        <text font-family="'JetBrains Mono', 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="12.5" fill="#ffffff"
+              font-weight="600" letter-spacing="3" text-anchor="middle">
+          <textPath href="#textCircle" startOffset="0%">
+            MAOBING <tspan fill="#4169E1">&#9733;</tspan> 猫冰 <tspan fill="#4169E1">&#9733;</tspan> MAOBING <tspan fill="#4169E1">&#9733;</tspan> 猫冰 <tspan fill="#4169E1">&#9733;</tspan> MAOBING <tspan fill="#4169E1">&#9733;</tspan> 猫冰 <tspan fill="#4169E1">&#9733;</tspan> MAOBING <tspan fill="#4169E1">&#9733;</tspan> 猫冰 <tspan fill="#4169E1">&#9733;</tspan> MAOBING <tspan fill="#4169E1">&#9733;</tspan> 猫冰
+          </textPath>
+        </text>
+      </svg>
+    </div>
     <div class="hero-avatar-frame">
       <div class="hero-avatar-placeholder">
         <span class="icon">[ + ]</span>
