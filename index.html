@@ -1028,8 +1028,8 @@ a:hover { color: var(--lemon-yellow); }
         if (first) { ctx.moveTo(pt.x, pt.y); first = false; }
         else       { ctx.lineTo(pt.x, pt.y); }
       }
-      ctx.strokeStyle = 'rgba(65, 105, 225, 0.13)';
-      ctx.lineWidth = 0.6;
+      ctx.strokeStyle = 'rgba(65, 105, 225, 0.24)';
+      ctx.lineWidth = 1.0;
       ctx.stroke();
     }
 
@@ -1042,8 +1042,8 @@ a:hover { color: var(--lemon-yellow); }
         if (first) { ctx.moveTo(pt.x, pt.y); first = false; }
         else       { ctx.lineTo(pt.x, pt.y); }
       }
-      ctx.strokeStyle = 'rgba(65, 105, 225, 0.10)';
-      ctx.lineWidth = 0.5;
+      ctx.strokeStyle = 'rgba(65, 105, 225, 0.18)';
+      ctx.lineWidth = 0.8;
       ctx.stroke();
     }
 
@@ -1056,9 +1056,9 @@ a:hover { color: var(--lemon-yellow); }
           var dy2 = pt.y - depY;
           var d2 = Math.sqrt(dx2 * dx2 + dy2 * dy2);
           if (d2 < RADIUS * 0.6) {
-            var alpha2 = (1 - d2 / (RADIUS * 0.6)) * 0.25;
+            var alpha2 = (1 - d2 / (RADIUS * 0.6)) * 0.40;
             ctx.beginPath();
-            ctx.arc(pt.x, pt.y, 1.8, 0, Math.PI * 2);
+            ctx.arc(pt.x, pt.y, 2.5, 0, Math.PI * 2);
             ctx.fillStyle = 'rgba(100, 150, 255, ' + alpha2 + ')';
             ctx.fill();
           }
@@ -1069,8 +1069,8 @@ a:hover { color: var(--lemon-yellow); }
     // ---- 9. 全局微弱的中心光晕 ----
     if (mouseX > -100 && mouseY > -100) {
       var glow = ctx.createRadialGradient(depX, depY, 0, depX, depY, RADIUS);
-      glow.addColorStop(0, 'rgba(65, 105, 225, 0.04)');
-      glow.addColorStop(0.6, 'rgba(65, 105, 225, 0.01)');
+      glow.addColorStop(0, 'rgba(65, 105, 225, 0.08)');
+      glow.addColorStop(0.6, 'rgba(65, 105, 225, 0.02)');
       glow.addColorStop(1, 'rgba(65, 105, 225, 0)');
       ctx.fillStyle = glow;
       ctx.fillRect(depX - RADIUS, depY - RADIUS, RADIUS * 2, RADIUS * 2);
