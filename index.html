@@ -186,36 +186,24 @@ a:hover { color: var(--lemon-yellow); }
 .hero {
   min-height: 100vh;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
   justify-content: center;
   position: relative;
   z-index: 2;
-  padding: 80px 32px;
-  gap: 56px;
+  padding: 80px 72px;
+  gap: 100px;
 }
 
-.hero-decoration {
-  font-family: var(--font-mono);
-  font-size: 0.8rem;
-  color: var(--text-dim);
-  position: absolute;
-  opacity: 0.6;
-}
-
-.hero-decoration.top-left     { top: 120px; left: 48px; }
-.hero-decoration.top-right    { top: 120px; right: 48px; }
-.hero-decoration.bottom-left  { bottom: 80px; left: 48px; }
-.hero-decoration.bottom-right { bottom: 80px; right: 48px; }
 
 .hero-left {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 20px;
-  max-width: 680px;
+  align-items: flex-start;
+  gap: 24px;
+  max-width: 620px;
   z-index: 3;
-  text-align: center;
+  text-align: left;
 }
 
 .hero-text-container {
@@ -233,7 +221,7 @@ a:hover { color: var(--lemon-yellow); }
 
 .hero-line {
   font-family: var(--font-mono);
-  font-size: clamp(2.6rem, 5.5vw, 4.8rem);
+  font-size: clamp(3.2rem, 6.5vw, 5.6rem);
   font-weight: 700;
   color: var(--text-primary);
   min-height: 1.15em;
@@ -244,7 +232,7 @@ a:hover { color: var(--lemon-yellow); }
 }
 
 .hero-line.secondary {
-  font-size: clamp(1.4rem, 2.8vw, 2rem);
+  font-size: clamp(1.7rem, 3.3vw, 2.4rem);
   font-weight: 400;
   color: var(--text-secondary);
   letter-spacing: -0.5px;
@@ -291,7 +279,7 @@ a:hover { color: var(--lemon-yellow); }
 
 .hero-subtitle {
   font-family: var(--font-mono);
-  font-size: 1.05rem;
+  font-size: 1.2rem;
   color: var(--text-dim);
   margin-top: 8px;
   opacity: 0;
@@ -317,8 +305,8 @@ a:hover { color: var(--lemon-yellow); }
 .hero-avatar-wrapper {
   flex: 0 0 auto;
   position: relative;
-  width: clamp(160px, 20vw, 240px);
-  height: clamp(160px, 20vw, 240px);
+  width: clamp(200px, 26vw, 320px);
+  height: clamp(200px, 26vw, 320px);
   z-index: 3;
   top: -36px;
   transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -416,7 +404,6 @@ a:hover { color: var(--lemon-yellow); }
   display: block;
   font-size: 2.4rem;
   margin-bottom: 6px;
-  opacity: 0.5;
 }
 
 .hero-avatar-frame::before {
@@ -439,16 +426,32 @@ a:hover { color: var(--lemon-yellow); }
   left: 50%;
   transform: translateX(-50%);
   font-family: var(--font-mono);
-  font-size: 0.7rem;
-  color: var(--text-dim);
+  font-size: 0.85rem;
+  color: var(--royal-blue);
+  letter-spacing: 3px;
   animation: floatDown 2s ease-in-out infinite;
   cursor: pointer;
   z-index: 3;
 }
 
+.hero-scroll-hint::after {
+  content: '';
+  display: block;
+  width: 1px;
+  height: 20px;
+  margin: 6px auto 0;
+  background: var(--royal-blue);
+  animation: scrollPulse 1.6s ease-in-out infinite;
+}
+
 @keyframes floatDown {
-  0%, 100% { transform: translateX(-50%) translateY(0); opacity: 0.4; }
-  50% { transform: translateX(-50%) translateY(8px); opacity: 0.8; }
+  0%, 100% { transform: translateX(-50%) translateY(0); opacity: 0.6; }
+  50% { transform: translateX(-50%) translateY(10px); opacity: 1; }
+}
+
+@keyframes scrollPulse {
+  0%, 100% { opacity: 0.3; height: 20px; }
+  50% { opacity: 1; height: 30px; }
 }
 
 /* ========================================
@@ -834,11 +837,11 @@ a:hover { color: var(--lemon-yellow); }
    ======================================== */
 @media (max-width: 768px) {
   .hero-decoration { display: none; }
-  .hero { padding: 100px 24px 60px; gap: 28px; }
-  .hero-left { max-width: 100%; }
-  .hero-line { font-size: clamp(1.8rem, 8vw, 2.8rem) !important; }
-  .hero-line.secondary { font-size: clamp(1rem, 5vw, 1.4rem) !important; }
-  .hero-avatar-wrapper { width: 160px; height: 160px; }
+  .hero { flex-direction: column; padding: 100px 24px 60px; gap: 32px; }
+  .hero-left { max-width: 100%; align-items: center; text-align: center; }
+  .hero-line { font-size: clamp(2rem, 8vw, 3.2rem) !important; }
+  .hero-line.secondary { font-size: clamp(1.2rem, 5vw, 1.6rem) !important; }
+  .hero-avatar-wrapper { width: 200px; height: 200px; }
   .hero-subtitle { text-align: center; }
 
   .coverflow-container { height: 360px; }
@@ -874,10 +877,14 @@ a:hover { color: var(--lemon-yellow); }
 
 <!-- SECTION 1: HERO -->
 <section class="hero" id="home">
-  <div class="hero-decoration top-left">/* v2.0.1 */</div>
-  <div class="hero-decoration top-right">&lt;header&gt;</div>
-  <div class="hero-decoration bottom-left">&lt;/header&gt;</div>
-  <div class="hero-decoration bottom-right">// CTRL+C to continue</div>
+
+  <div class="hero-left">
+    <div class="hero-text-container" id="heroText">
+      <div class="hero-line" id="heroLine1"></div>
+      <div class="hero-line secondary" id="heroLine2"></div>
+    </div>
+    <p class="hero-subtitle">&gt; Building digital experiences, one commit at a time.</p>
+  </div>
 
   <div class="hero-avatar-wrapper">
     <div class="hero-avatar-ring-breathe">
@@ -895,18 +902,9 @@ a:hover { color: var(--lemon-yellow); }
     </div>
     <div class="hero-avatar-frame">
       <div class="hero-avatar-placeholder">
-        <span class="icon">[ + ]</span>
-        add your<br>avatar here
+        <img src="src/q版猫冰无背景.png" alt="猫冰头像" class="icon" style="width: 100%; height: auto;"></img>
       </div>
     </div>
-  </div>
-
-  <div class="hero-left">
-    <div class="hero-text-container" id="heroText">
-      <div class="hero-line" id="heroLine1"></div>
-      <div class="hero-line secondary" id="heroLine2"></div>
-    </div>
-    <p class="hero-subtitle">&gt; Building digital experiences, one commit at a time.</p>
   </div>
 
   <div class="hero-scroll-hint" onclick="window.scrollTo({top:document.getElementById('about').offsetTop,behavior:'smooth'})">
@@ -980,7 +978,7 @@ a:hover { color: var(--lemon-yellow); }
   const CELL       = 56;   // 网格单元格大小（px）
   const RADIUS     = 220;  // 鼠标影响半径（px），超出此范围无变形
   const MAX_DISP   = 22;   // 鼠标正下方最大位移量（px）
-  const SCROLL_V   = 0.28; // 横向滚动速度（px/帧），越大越快
+  const SCROLL_V   = 0.90; // 45°斜向滚动速度（px/帧），越大越快
   const SPRING     = 0.06; // 弹性回弹力度（越大回弹越快）
   const DAMPING    = 0.78; // 阻尼系数（0-1，越小衰减越快）
 
@@ -1038,7 +1036,7 @@ a:hover { color: var(--lemon-yellow); }
     var w = canvas.width;
     var h = canvas.height;
 
-    // ---- 1. 横向滚动 ----
+    // ---- 1. 45°斜向滚动 ----
     scrollOffset = (scrollOffset + SCROLL_V) % CELL;
 
     // ---- 2. 弹簧阻尼更新塌陷中心 ----
@@ -1058,8 +1056,8 @@ a:hover { color: var(--lemon-yellow); }
     var scrolled = scrollOffset;
     var col0 = Math.floor(-scrolled / CELL) - 1;
     var colN = Math.ceil((w - scrolled) / CELL) + 1;
-    var row0 = -1;
-    var rowN = Math.ceil(h / CELL) + 1;
+    var row0 = Math.floor(-scrolled / CELL) - 1;
+    var rowN = Math.ceil((h - scrolled) / CELL) + 1;
 
     // ---- 5. 预计算所有顶点的位移后坐标 ----
     // 存入二维稀疏表，供横线/竖线共享
@@ -1067,7 +1065,7 @@ a:hover { color: var(--lemon-yellow); }
     for (var c = col0; c <= colN; c++) {
       for (var r = row0; r <= rowN; r++) {
         var vx = c * CELL + scrolled;
-        var vy = r * CELL;
+        var vy = r * CELL + scrolled;
         grid[c + ',' + r] = displace(vx, vy);
       }
     }
