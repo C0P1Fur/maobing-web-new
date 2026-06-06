@@ -14,7 +14,7 @@
 :root {
   --bg-deep: #0a0a14;
   --bg-surface: #0f0f1e;
-  --bg-card: rgba(15, 15, 35, 0.6);
+  --bg-card: rgba(30, 30, 55, 0.7);
   --royal-blue: #4169E1;
   --royal-blue-glow: rgba(65, 105, 225, 0.4);
   --lemon-yellow: #FFD700;
@@ -22,9 +22,9 @@
   --text-primary: #e0e0f0;
   --text-secondary: #8888aa;
   --text-dim: #555577;
-  --glass-bg: rgba(10, 10, 25, 0.65);
-  --glass-border: rgba(65, 105, 225, 0.15);
-  --glass-border-hover: rgba(65, 105, 225, 0.4);
+  --glass-bg: rgba(35, 35, 65, 0.82);
+  --glass-border: rgba(65, 105, 225, 0.28);
+  --glass-border-hover: rgba(65, 105, 225, 0.5);
   --font-mono: 'JetBrains Mono', monospace;
   --font-sans: 'Space Grotesk', sans-serif;
   --radius-sm: 4px;
@@ -104,48 +104,47 @@ a:hover { color: var(--lemon-yellow); }
   position: fixed;
   top: 0; left: 0; right: 0;
   z-index: 100;
-  padding: 16px 32px;
+  padding: 20px 48px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: rgba(10, 10, 20, 0.8);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  background: rgba(30, 30, 60, 0.85);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
   border-bottom: 1px solid var(--glass-border);
-  transition: background var(--transition-fast);
 }
 
 .nav-logo {
   font-family: var(--font-mono);
-  font-size: 1.2rem;
+  font-size: 1.5rem;
   font-weight: 700;
   color: var(--text-primary);
-  letter-spacing: -0.5px;
+  letter-spacing: 0.5px;
 }
-
-.nav-logo .accent { color: var(--lemon-yellow); }
-.nav-logo .slash { color: var(--royal-blue); }
 
 .nav-links {
   display: flex;
-  gap: 32px;
+  gap: 40px;
   list-style: none;
 }
 
 .nav-links a {
   font-family: var(--font-mono);
-  font-size: 0.85rem;
+  font-size: 1rem;
   color: var(--text-secondary);
   position: relative;
-  padding: 4px 0;
+  padding: 6px 0;
   transition: color var(--transition-fast);
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
 }
 
 .nav-links a::after {
   content: '';
   position: absolute;
   bottom: 0; left: 0;
-  width: 0; height: 1px;
+  width: 0; height: 2px;
   background: var(--lemon-yellow);
   transition: width var(--transition-fast);
 }
@@ -153,7 +152,13 @@ a:hover { color: var(--lemon-yellow); }
 .nav-links a:hover { color: var(--lemon-yellow); }
 .nav-links a:hover::after { width: 100%; }
 
-.nav-links a .prefix { color: var(--royal-blue); font-size: 0.75rem; }
+.nav-links a .prefix {
+  color: var(--royal-blue);
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-shadow: 0 0 8px var(--royal-blue-glow);
+  letter-spacing: 1px;
+}
 
 /* ========================================
    SECTION COMMONS
@@ -302,8 +307,8 @@ a:hover { color: var(--lemon-yellow); }
 /* Avatar frame — frosted glass */
 .hero-avatar-frame {
   flex: 0 0 auto;
-  width: clamp(200px, 24vw, 280px);
-  height: clamp(200px, 24vw, 280px);
+  width: clamp(260px, 34vw, 420px);
+  height: clamp(260px, 34vw, 420px);
   border-radius: 50%;
   border: 2px solid var(--glass-border-hover);
   background: var(--glass-bg);
@@ -346,7 +351,6 @@ a:hover { color: var(--lemon-yellow); }
   opacity: 0.5;
 }
 
-/* Avatar ring decoration */
 .hero-avatar-frame::before {
   content: '';
   position: absolute;
@@ -822,7 +826,7 @@ a:hover { color: var(--lemon-yellow); }
   .hero-text-container { align-items: center; }
   .hero-line { font-size: clamp(1.8rem, 8vw, 2.8rem) !important; }
   .hero-line.secondary { font-size: clamp(1rem, 5vw, 1.4rem) !important; }
-  .hero-avatar-frame { width: 160px; height: 160px; }
+  .hero-avatar-frame { width: 200px; height: 200px; }
   .hero-subtitle { text-align: center; }
 
   .coverflow-container { height: 360px; }
@@ -853,9 +857,8 @@ a:hover { color: var(--lemon-yellow); }
 <canvas id="grid-canvas"></canvas>
 <div class="scanlines"></div>
 
-<!-- NAVIGATION -->
 <nav class="nav">
-  <div class="nav-logo"><span class="slash">//</span> MAOBING <span class="accent">>_</span></div>
+  <div class="nav-logo">MAOBING</div>
   <ul class="nav-links">
     <li><a href="#home"><span class="prefix">01</span> Home</a></li>
     <li><a href="#about"><span class="prefix">02</span> About</a></li>
