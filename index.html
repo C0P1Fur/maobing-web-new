@@ -52,7 +52,7 @@ body {
   font-family: var(--font-sans);
   line-height: 1.6;
   overflow-x: hidden;
-  cursor: default;
+  cursor: none;
 }
 
 ::-webkit-scrollbar { width: 6px; }
@@ -203,12 +203,13 @@ a:hover { color: var(--lemon-yellow); }
 .hero {
   min-height: 100vh;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
   position: relative;
   z-index: 2;
-  padding: 32px;
+  padding: 80px 80px 80px 96px;
+  gap: 64px;
 }
 
 .hero-decoration {
@@ -224,38 +225,45 @@ a:hover { color: var(--lemon-yellow); }
 .hero-decoration.bottom-left  { bottom: 80px; left: 48px; }
 .hero-decoration.bottom-right { bottom: 80px; right: 48px; }
 
-.hero-text-container {
-  text-align: center;
-  min-height: 180px;
+.hero-left {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
+  gap: 20px;
+  max-width: 680px;
+  z-index: 3;
+}
+
+.hero-text-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .hero-line {
   font-family: var(--font-mono);
-  font-size: clamp(1.8rem, 5vw, 3.5rem);
+  font-size: clamp(2.6rem, 5.5vw, 4.8rem);
   font-weight: 700;
   color: var(--text-primary);
-  min-height: 1.2em;
+  min-height: 1.15em;
   position: relative;
-  letter-spacing: -1px;
+  letter-spacing: -1.5px;
+  line-height: 1.1;
 }
 
 .hero-line.secondary {
-  font-size: clamp(1rem, 2.5vw, 1.6rem);
+  font-size: clamp(1.4rem, 2.8vw, 2rem);
   font-weight: 400;
   color: var(--text-secondary);
+  letter-spacing: -0.5px;
 }
 
 .cursor {
   display: inline-block;
-  width: 3px;
-  height: 1em;
+  width: 4px;
+  height: 0.85em;
   background: var(--lemon-yellow);
-  margin-left: 2px;
+  margin-left: 4px;
   vertical-align: text-bottom;
   animation: cursor-blink 0.8s steps(2) infinite;
 }
@@ -279,9 +287,9 @@ a:hover { color: var(--lemon-yellow); }
 
 .hero-subtitle {
   font-family: var(--font-mono);
-  font-size: 0.9rem;
+  font-size: 1.05rem;
   color: var(--text-dim);
-  margin-top: 32px;
+  margin-top: 8px;
   opacity: 0;
   animation: fadeInUp 0.6s 2s forwards;
 }
@@ -289,6 +297,68 @@ a:hover { color: var(--lemon-yellow); }
 @keyframes fadeInUp {
   from { opacity: 0; transform: translateY(12px); }
   to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Avatar frame — frosted glass */
+.hero-avatar-frame {
+  flex: 0 0 auto;
+  width: clamp(200px, 24vw, 280px);
+  height: clamp(200px, 24vw, 280px);
+  border-radius: 50%;
+  border: 2px solid var(--glass-border-hover);
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow:
+    0 0 40px var(--royal-blue-glow),
+    0 0 80px rgba(65, 105, 225, 0.12),
+    inset 0 0 30px rgba(65, 105, 225, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 3;
+  transition: border-color var(--transition-smooth), box-shadow var(--transition-smooth);
+  overflow: hidden;
+}
+
+.hero-avatar-frame:hover {
+  border-color: var(--lemon-yellow);
+  box-shadow:
+    0 0 50px var(--lemon-yellow-glow),
+    0 0 100px rgba(255, 215, 0, 0.1),
+    inset 0 0 40px rgba(255, 215, 0, 0.06);
+}
+
+.hero-avatar-placeholder {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  text-align: center;
+  line-height: 1.5;
+  user-select: none;
+}
+
+.hero-avatar-placeholder .icon {
+  display: block;
+  font-size: 2.4rem;
+  margin-bottom: 6px;
+  opacity: 0.5;
+}
+
+/* Avatar ring decoration */
+.hero-avatar-frame::before {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  border: 1px dashed rgba(65, 105, 225, 0.2);
+  animation: ringRotate 20s linear infinite;
+}
+
+@keyframes ringRotate {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
 }
 
 .hero-scroll-hint {
@@ -301,6 +371,7 @@ a:hover { color: var(--lemon-yellow); }
   color: var(--text-dim);
   animation: floatDown 2s ease-in-out infinite;
   cursor: pointer;
+  z-index: 3;
 }
 
 @keyframes floatDown {
@@ -687,6 +758,57 @@ a:hover { color: var(--lemon-yellow); }
 }
 
 /* ========================================
+   CUSTOM CURSOR & CLICK PARTICLES
+   ======================================== */
+.custom-cursor {
+  position: fixed;
+  top: 0; left: 0;
+  width: 3px; height: 3px;
+  z-index: 99999;
+  pointer-events: none;
+  background: transparent;
+  transform: rotate(28deg);
+  animation: reticleBlink 0.11s steps(2) infinite;
+}
+
+.custom-cursor.clicking {
+  animation: none;
+  opacity: 1;
+}
+
+@keyframes reticleBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.15; }
+}
+
+.click-particle {
+  position: fixed;
+  z-index: 99998;
+  pointer-events: none;
+  font-family: var(--font-mono);
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1;
+  animation: particleScatter 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  white-space: nowrap;
+}
+
+@keyframes particleScatter {
+  0% {
+    opacity: 1;
+    transform: translate(0, 0) scale(1);
+  }
+  30% {
+    opacity: 1;
+    transform: translate(var(--dx30), var(--dy30)) scale(1.3);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--dx), var(--dy)) scale(0.4);
+  }
+}
+
+/* ========================================
    RESPONSIVE
    ======================================== */
 @media (max-width: 768px) {
@@ -695,13 +817,13 @@ a:hover { color: var(--lemon-yellow); }
   .nav-links a { font-size: 0.7rem; }
 
   .hero-decoration { display: none; }
-
-  .hero-line {
-    font-size: clamp(1.3rem, 6vw, 2rem) !important;
-  }
-  .hero-line.secondary {
-    font-size: clamp(0.85rem, 4vw, 1.2rem) !important;
-  }
+  .hero { flex-direction: column-reverse; padding: 100px 24px 60px; gap: 32px; justify-content: center; text-align: center; }
+  .hero-left { align-items: center; text-align: center; max-width: 100%; }
+  .hero-text-container { align-items: center; }
+  .hero-line { font-size: clamp(1.8rem, 8vw, 2.8rem) !important; }
+  .hero-line.secondary { font-size: clamp(1rem, 5vw, 1.4rem) !important; }
+  .hero-avatar-frame { width: 160px; height: 160px; }
+  .hero-subtitle { text-align: center; }
 
   .coverflow-container { height: 360px; }
   .coverflow-card { width: 260px; padding: 24px 20px; }
@@ -749,12 +871,20 @@ a:hover { color: var(--lemon-yellow); }
   <div class="hero-decoration bottom-left">&lt;/header&gt;</div>
   <div class="hero-decoration bottom-right">// CTRL+C to continue</div>
 
-  <div class="hero-text-container" id="heroText">
-    <div class="hero-line" id="heroLine1"></div>
-    <div class="hero-line secondary" id="heroLine2"></div>
+  <div class="hero-left">
+    <div class="hero-text-container" id="heroText">
+      <div class="hero-line" id="heroLine1"></div>
+      <div class="hero-line secondary" id="heroLine2"></div>
+    </div>
+    <p class="hero-subtitle">&gt; Building digital experiences, one commit at a time.</p>
   </div>
 
-  <p class="hero-subtitle">&gt; Building digital experiences, one commit at a time.</p>
+  <div class="hero-avatar-frame">
+    <div class="hero-avatar-placeholder">
+      <span class="icon">[ + ]</span>
+      add your<br>avatar here
+    </div>
+  </div>
 
   <div class="hero-scroll-hint" onclick="window.scrollTo({top:document.getElementById('about').offsetTop,behavior:'smooth'})">
     [ scroll down ]
@@ -1277,6 +1407,141 @@ a:hover { color: var(--lemon-yellow); }
       idCard.style.borderColor = 'var(--glass-border)';
     }, 1500);
   });
+})();
+
+/* ========================================
+   CUSTOM CURSOR — Minecraft Diamond Sword
+   ======================================== */
+(function() {
+  const PX = 3; // pixel size
+
+  // Pixel-art diamond sword grid: 11 cols × 16 rows
+  // # = diamond blade cyan, L = light highlight, D = dark shadow, B = brown handle
+  const SWORD = [
+    '....###....',   //  0  tip
+    '...#####...',   //  1
+    '..#######..',   //  2
+    '.##L###D##.',   //  3
+    '.##L###D##.',   //  4  blade widest
+    '.###L#D###.',   //  5
+    '.####D####.',   //  6
+    '.###...###.',   //  7  guard notch
+    '.###...###.',   //  8
+    '..##...##..',   //  9
+    '..#######..',   // 10  guard bottom
+    '..##BBB##..',   // 11  handle top
+    '...BBBBB...',   // 12
+    '...BBBBB...',   // 13  handle
+    '....BBB....',   // 14
+    '....BBB....',   // 15  handle end
+  ];
+
+  const COLORS = {
+    '#': '#5CEFE7',  // diamond blade cyan
+    'L': '#B3FCF7',  // light highlight
+    'D': '#3DB8B0',  // dark shadow (3D edge)
+    'B': '#5C3A1E',  // brown handle
+  };
+
+  const YELLOW_MAP = {
+    '#': '#FFD700',
+    'L': '#FFED80',
+    'D': '#CCB000',
+    'B': '#8B7320',
+  };
+
+  function buildBoxShadow(colorMap) {
+    const cols = SWORD[0].length;
+    const rows = SWORD.length;
+    const cx = Math.floor(cols / 2); // center col
+    const cy = Math.floor(rows / 2); // center row
+    const parts = [];
+
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        const ch = SWORD[r][c];
+        if (ch === '.') continue;
+        const color = colorMap[ch] || '#5CEFE7';
+        const x = (c - cx) * PX;
+        const y = (r - cy) * PX;
+        parts.push(`${x}px ${y}px 0 ${color}`);
+      }
+    }
+    return parts.join(', ');
+  }
+
+  const normalShadow = buildBoxShadow(COLORS);
+  const clickShadow = buildBoxShadow(YELLOW_MAP);
+
+  const cursor = document.createElement('div');
+  cursor.className = 'custom-cursor';
+  cursor.style.boxShadow = normalShadow;
+  document.body.appendChild(cursor);
+
+  let mouseX = window.innerWidth / 2;
+  let mouseY = window.innerHeight / 2;
+  let isClicking = false;
+
+  document.addEventListener('mousemove', (e) => {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+    cursor.style.left = mouseX + 'px';
+    cursor.style.top = mouseY + 'px';
+  });
+
+  document.addEventListener('mouseleave', () => { cursor.style.opacity = '0'; });
+  document.addEventListener('mouseenter', () => { cursor.style.opacity = ''; });
+
+  // Click: flash sword yellow + spawn particles
+  document.addEventListener('click', (e) => {
+    if (isClicking) return;
+    isClicking = true;
+
+    const cx = e.clientX;
+    const cy = e.clientY;
+
+    cursor.style.boxShadow = clickShadow;
+    cursor.classList.add('clicking');
+
+    const chars = ['0', '1', '!', '0', '1', '>', '<', '/'];
+    const particleCount = 16;
+
+    for (let i = 0; i < particleCount; i++) {
+      const p = document.createElement('span');
+      p.className = 'click-particle';
+      p.textContent = chars[Math.floor(Math.random() * chars.length)];
+
+      const angle = (Math.PI * 2 * i) / particleCount + (Math.random() - 0.5) * 0.4;
+      const distance = 50 + Math.random() * 70;
+      const dx = Math.cos(angle) * distance;
+      const dy = Math.sin(angle) * distance;
+
+      p.style.left = cx + 'px';
+      p.style.top = cy + 'px';
+      p.style.setProperty('--dx', dx + 'px');
+      p.style.setProperty('--dy', dy + 'px');
+      p.style.setProperty('--dx30', (dx * 0.3) + 'px');
+      p.style.setProperty('--dy30', (dy * 0.3) + 'px');
+
+      const isBlue = i % 2 === 0;
+      p.style.color = isBlue ? '#4169E1' : '#FFD700';
+      p.style.textShadow = isBlue
+        ? '0 0 8px rgba(65,105,225,0.8), 0 0 20px rgba(65,105,225,0.4)'
+        : '0 0 8px rgba(255,215,0,0.8), 0 0 20px rgba(255,215,0,0.4)';
+
+      document.body.appendChild(p);
+      setTimeout(() => p.remove(), 750);
+    }
+
+    setTimeout(() => {
+      cursor.style.boxShadow = normalShadow;
+      cursor.classList.remove('clicking');
+      isClicking = false;
+    }, 130);
+  });
+
+  cursor.style.left = mouseX + 'px';
+  cursor.style.top = mouseY + 'px';
 })();
 </script>
 </body>
