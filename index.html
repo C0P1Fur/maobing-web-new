@@ -98,69 +98,6 @@ a:hover { color: var(--lemon-yellow); }
 }
 
 /* ========================================
-   NAVIGATION
-   ======================================== */
-.nav {
-  position: fixed;
-  top: 0; left: 0; right: 0;
-  z-index: 100;
-  padding: 20px 48px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: rgba(30, 30, 60, 0.85);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border-bottom: 1px solid var(--glass-border);
-}
-
-.nav-logo {
-  font-family: var(--font-mono);
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  letter-spacing: 0.5px;
-}
-
-.nav-links {
-  display: flex;
-  gap: 40px;
-  list-style: none;
-}
-
-.nav-links a {
-  font-family: var(--font-mono);
-  font-size: 1rem;
-  color: var(--text-secondary);
-  position: relative;
-  padding: 6px 0;
-  transition: color var(--transition-fast);
-  display: flex;
-  align-items: baseline;
-  gap: 6px;
-}
-
-.nav-links a::after {
-  content: '';
-  position: absolute;
-  bottom: 0; left: 0;
-  width: 0; height: 2px;
-  background: var(--lemon-yellow);
-  transition: width var(--transition-fast);
-}
-
-.nav-links a:hover { color: var(--lemon-yellow); }
-.nav-links a:hover::after { width: 100%; }
-
-.nav-links a .prefix {
-  color: var(--royal-blue);
-  font-size: 0.95rem;
-  font-weight: 700;
-  text-shadow: 0 0 8px var(--royal-blue-glow);
-  letter-spacing: 1px;
-}
-
-/* ========================================
    SECTION COMMONS
    ======================================== */
 .section {
@@ -816,10 +753,6 @@ a:hover { color: var(--lemon-yellow); }
    RESPONSIVE
    ======================================== */
 @media (max-width: 768px) {
-  .nav { padding: 12px 16px; }
-  .nav-links { gap: 16px; }
-  .nav-links a { font-size: 0.7rem; }
-
   .hero-decoration { display: none; }
   .hero { flex-direction: column-reverse; padding: 100px 24px 60px; gap: 32px; justify-content: center; text-align: center; }
   .hero-left { align-items: center; text-align: center; max-width: 100%; }
@@ -843,8 +776,6 @@ a:hover { color: var(--lemon-yellow); }
 }
 
 @media (max-width: 480px) {
-  .nav-links { gap: 10px; }
-  .nav-links a { font-size: 0.65rem; }
   .section { padding: 60px 16px; }
   .coverflow-container { height: 320px; }
   .coverflow-card { width: 240px; padding: 20px 16px; }
@@ -856,16 +787,6 @@ a:hover { color: var(--lemon-yellow); }
 <!-- 3D GRID BACKGROUND -->
 <canvas id="grid-canvas"></canvas>
 <div class="scanlines"></div>
-
-<nav class="nav">
-  <div class="nav-logo">MAOBING</div>
-  <ul class="nav-links">
-    <li><a href="#home"><span class="prefix">01</span> Home</a></li>
-    <li><a href="#about"><span class="prefix">02</span> About</a></li>
-    <li><a href="#gallery"><span class="prefix">03</span> Works</a></li>
-    <li><a href="#friends"><span class="prefix">04</span> Links</a></li>
-  </ul>
-</nav>
 
 <!-- SECTION 1: HERO -->
 <section class="hero" id="home">
