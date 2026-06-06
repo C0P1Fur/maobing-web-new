@@ -1285,6 +1285,21 @@ a:hover { color: var(--lemon-yellow); }
   let depX = -9999, depY = -9999;
   let depVX = 0, depVY = 0;
 
+  // ==================== 斜向平铺图片 ====================
+  // ★ 替换 TILE_IMG_SRC 的值为你想要的图片路径
+  const TILE_IMG_SRC = './src/猫冰头.png'; // ← 改成你的图片路径
+  const TILE_SIZE    = 120;   // 图片显示大小（px）
+  const TILE_SPACING = 6;    // 每隔几个网格格绘制一张（1=每格都画）
+  const TILE_ALPHA   = 0.50; // 图片透明度
+
+  let tileImg = null;
+  let tileImgLoaded = false;
+  (function loadTileImage() {
+    tileImg = new Image();
+    tileImg.onload = function() { tileImgLoaded = true; };
+    tileImg.src = TILE_IMG_SRC;
+  })();
+
   // ==================== Canvas 尺寸 ====================
   function resize() {
     canvas.width  = window.innerWidth;
@@ -1332,7 +1347,7 @@ a:hover { color: var(--lemon-yellow); }
     var h = canvas.height;
 
     // ---- 1. 45°斜向滚动 ----
-    scrollOffset = (scrollOffset + SCROLL_V) % CELL;
+    scrollOffset = scrollOffset + SCROLL_V; // 连续累加，避免 % CELL 导致的图片回弹
 
     // ---- 2. 弹簧阻尼更新塌陷中心 ----
     // 弹簧力：朝向鼠标位置
@@ -1391,6 +1406,27 @@ a:hover { color: var(--lemon-yellow); }
       ctx.strokeStyle = 'rgba(65, 105, 225, 0.18)';
       ctx.lineWidth = 0.8;
       ctx.stroke();
+    }
+
+    // ---- 7.5. 绘制斜向 45° 平铺图片 ----
+    // 对齐起始行列到 TILE_SPACING 的整数倍，防止滚动时图片模式相位漂移
+    if (tileImgLoaded) {
+      ctx.save();
+      ctx.globalAlpha = TILE_ALPHA;
+      var tc0 = Math.ceil(col0 / TILE_SPACING) * TILE_SPACING;
+      var tr0 = Math.ceil(row0 / TILE_SPACING) * TILE_SPACING;
+      for (var c = tc0; c <= colN; c += TILE_SPACING) {
+        for (var r = tr0; r <= rowN; r += TILE_SPACING) {
+          var pt = grid[c + ',' + r];
+          if (!pt) continue;
+          ctx.save();
+          ctx.translate(pt.x, pt.y);
+          ctx.rotate(Math.PI / 4); // 逆时针 90°
+          ctx.drawImage(tileImg, -TILE_SIZE / 2, -TILE_SIZE / 2, TILE_SIZE, TILE_SIZE);
+          ctx.restore();
+        }
+      }
+      ctx.restore();
     }
 
     // ---- 8. 鼠标附近的网格交点加亮（微光点） ----
