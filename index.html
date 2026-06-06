@@ -913,108 +913,170 @@ a:hover { color: var(--lemon-yellow); }
 <!-- SCRIPTS -->
 <script>
 /* ========================================
-   3D CYBER GRID BACKGROUND
+   CYBER GRID MATRIX BACKGROUND
+   - 深蓝色暗黑模式 + 几何矩阵网格
+   - 无限匀速横向侧向滚动
+   - 鼠标悬浮局部塌陷/凹陷（径向衰减扭曲 + 弹性回弹）
+   - requestAnimationFrame 60FPS
    ======================================== */
 (function() {
   const canvas = document.getElementById('grid-canvas');
   const ctx = canvas.getContext('2d');
-  let mouseX = window.innerWidth / 2;
-  let mouseY = window.innerHeight / 2;
-  let targetMouseX = mouseX;
-  let targetMouseY = mouseY;
 
+  // ==================== 可调参数 ====================
+  const CELL       = 56;   // 网格单元格大小（px）
+  const RADIUS     = 220;  // 鼠标影响半径（px），超出此范围无变形
+  const MAX_DISP   = 22;   // 鼠标正下方最大位移量（px）
+  const SCROLL_V   = 0.28; // 横向滚动速度（px/帧），越大越快
+  const SPRING     = 0.06; // 弹性回弹力度（越大回弹越快）
+  const DAMPING    = 0.78; // 阻尼系数（0-1，越小衰减越快）
+
+  // ==================== 状态变量 ====================
+  let scrollOffset = 0;           // 横向滚动偏移量
+  let mouseX = -9999, mouseY = -9999;  // 真实鼠标坐标（-9999 表示鼠标不在视口内）
+
+  // “塌陷中心” — 用弹簧阻尼模型追赶鼠标，产生弹性滞后/回弹效果
+  let depX = -9999, depY = -9999;
+  let depVX = 0, depVY = 0;
+
+  // ==================== Canvas 尺寸 ====================
   function resize() {
-    canvas.width = window.innerWidth;
+    canvas.width  = window.innerWidth;
     canvas.height = window.innerHeight;
   }
   resize();
   window.addEventListener('resize', resize);
 
-  document.addEventListener('mousemove', (e) => {
-    targetMouseX = e.clientX;
-    targetMouseY = e.clientY;
+  // ==================== 鼠标追踪 ====================
+  document.addEventListener('mousemove', function(e) {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+  });
+  document.addEventListener('mouseleave', function() {
+    mouseX = -9999;
+    mouseY = -9999;
   });
 
+  // ==================== 计算顶点位移 ====================
+  // 输入：顶点原始坐标 (vx, vy)
+  // 输出：该顶点被“拉向”塌陷中心后的坐标
+  function displace(vx, vy) {
+    var dx = vx - depX;
+    var dy = vy - depY;
+    var dist = Math.sqrt(dx * dx + dy * dy);
+    if (dist >= RADIUS || dist < 0.001) return { x: vx, y: vy };
+
+    // 二次衰减曲线 — 离鼠标越近拉扯越强
+    var t = 1 - dist / RADIUS;
+    var strength = t * t * MAX_DISP;
+
+    // 向塌陷中心方向拉动顶点
+    var nx = dx / dist;
+    var ny = dy / dist;
+
+    return {
+      x: vx - nx * strength,
+      y: vy - ny * strength
+    };
+  }
+
+  // ==================== 绘制主循环 ====================
   function draw() {
-    const w = canvas.width;
-    const h = canvas.height;
+    var w = canvas.width;
+    var h = canvas.height;
 
-    // Smooth mouse follow
-    mouseX += (targetMouseX - mouseX) * 0.05;
-    mouseY += (targetMouseY - mouseY) * 0.05;
+    // ---- 1. 横向滚动 ----
+    scrollOffset = (scrollOffset + SCROLL_V) % CELL;
 
-    // Vanishing point shifted by mouse
-    const vpX = w / 2 + (mouseX - w / 2) * 0.15;
-    const vpY = h * 0.35 + (mouseY - h / 2) * 0.08;
+    // ---- 2. 弹簧阻尼更新塌陷中心 ----
+    // 弹簧力：朝向鼠标位置
+    var fx = (mouseX - depX) * SPRING;
+    var fy = (mouseY - depY) * SPRING;
+    depVX = (depVX + fx) * DAMPING;
+    depVY = (depVY + fy) * DAMPING;
+    depX += depVX;
+    depY += depVY;
 
-    ctx.clearRect(0, 0, w, h);
+    // ---- 3. 清屏：深蓝色背景 ----
+    ctx.fillStyle = '#060b18';
+    ctx.fillRect(0, 0, w, h);
 
-    // Draw horizontal grid lines (floor perspective)
-    const numHLines = 30;
-    const startY = vpY + 40;
-    const endY = h + 200;
+    // ---- 4. 计算可见网格范围 ----
+    var scrolled = scrollOffset;
+    var col0 = Math.floor(-scrolled / CELL) - 1;
+    var colN = Math.ceil((w - scrolled) / CELL) + 1;
+    var row0 = -1;
+    var rowN = Math.ceil(h / CELL) + 1;
 
-    for (let i = 0; i < numHLines; i++) {
-      const t = i / numHLines;
-      const y = startY + (endY - startY) * Math.pow(t, 2.2);
+    // ---- 5. 预计算所有顶点的位移后坐标 ----
+    // 存入二维稀疏表，供横线/竖线共享
+    var grid = {}; // key: "col,row" → {x, y}
+    for (var c = col0; c <= colN; c++) {
+      for (var r = row0; r <= rowN; r++) {
+        var vx = c * CELL + scrolled;
+        var vy = r * CELL;
+        grid[c + ',' + r] = displace(vx, vy);
+      }
+    }
 
-      if (y > h + 100) continue;
-
-      const alpha = 0.08 + 0.12 * (1 - t);
-      const lineWidth = 0.5 + 1 * (1 - t);
-
+    // ---- 6. 绘制竖线（每列一条折线，穿过各行顶点） ----
+    for (var c = col0; c <= colN; c++) {
       ctx.beginPath();
-      ctx.moveTo(0, y);
-      ctx.lineTo(w, y);
-      ctx.strokeStyle = `rgba(65, 105, 225, ${alpha})`;
-      ctx.lineWidth = lineWidth;
-      ctx.shadowColor = `rgba(65, 105, 225, ${alpha * 0.5})`;
-      ctx.shadowBlur = 3 * (1 - t);
+      var first = true;
+      for (var r = row0; r <= rowN; r++) {
+        var pt = grid[c + ',' + r];
+        if (first) { ctx.moveTo(pt.x, pt.y); first = false; }
+        else       { ctx.lineTo(pt.x, pt.y); }
+      }
+      ctx.strokeStyle = 'rgba(65, 105, 225, 0.13)';
+      ctx.lineWidth = 0.6;
       ctx.stroke();
     }
 
-    // Draw vertical radiating lines
-    const numVLines = 40;
-    for (let i = 0; i < numVLines; i++) {
-      const t = i / (numVLines - 1);
-      const angle = -Math.PI / 2 + (-Math.PI / 2.8) + t * (Math.PI / 1.4);
-      const dx = Math.cos(angle);
-      const dy = Math.sin(angle);
-
-      const farDist = h * 2.5;
-      const endX = vpX + dx * farDist;
-      const endY = vpY + dy * farDist;
-
-      const alpha = 0.03 + 0.06 * Math.abs(t - 0.5) * 2;
-
+    // ---- 7. 绘制横线（每行一条折线，穿过各列顶点） ----
+    for (var r = row0; r <= rowN; r++) {
       ctx.beginPath();
-      ctx.moveTo(vpX, vpY);
-      ctx.lineTo(endX, endY);
-      ctx.strokeStyle = `rgba(65, 105, 225, ${alpha})`;
+      var first = true;
+      for (var c = col0; c <= colN; c++) {
+        var pt = grid[c + ',' + r];
+        if (first) { ctx.moveTo(pt.x, pt.y); first = false; }
+        else       { ctx.lineTo(pt.x, pt.y); }
+      }
+      ctx.strokeStyle = 'rgba(65, 105, 225, 0.10)';
       ctx.lineWidth = 0.5;
-      ctx.shadowColor = 'transparent';
-      ctx.shadowBlur = 0;
       ctx.stroke();
     }
 
-    // Vanishing point glow
-    const glow = ctx.createRadialGradient(vpX, vpY, 0, vpX, vpY, 80);
-    glow.addColorStop(0, 'rgba(65, 105, 225, 0.08)');
-    glow.addColorStop(1, 'rgba(65, 105, 225, 0)');
-    ctx.fillStyle = glow;
-    ctx.fillRect(vpX - 80, vpY - 80, 160, 160);
+    // ---- 8. 鼠标附近的网格交点加亮（微光点） ----
+    if (mouseX > -100 && mouseY > -100) {
+      for (var c = col0; c <= colN; c++) {
+        for (var r = row0; r <= rowN; r++) {
+          var pt = grid[c + ',' + r];
+          var dx2 = pt.x - depX;
+          var dy2 = pt.y - depY;
+          var d2 = Math.sqrt(dx2 * dx2 + dy2 * dy2);
+          if (d2 < RADIUS * 0.6) {
+            var alpha2 = (1 - d2 / (RADIUS * 0.6)) * 0.25;
+            ctx.beginPath();
+            ctx.arc(pt.x, pt.y, 1.8, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(100, 150, 255, ' + alpha2 + ')';
+            ctx.fill();
+          }
+        }
+      }
+    }
 
-    // Extra accent lines near horizon
-    ctx.beginPath();
-    ctx.moveTo(vpX - 200, vpY);
-    ctx.lineTo(vpX + 200, vpY);
-    ctx.strokeStyle = 'rgba(255, 215, 0, 0.06)';
-    ctx.lineWidth = 1;
-    ctx.stroke();
+    // ---- 9. 全局微弱的中心光晕 ----
+    if (mouseX > -100 && mouseY > -100) {
+      var glow = ctx.createRadialGradient(depX, depY, 0, depX, depY, RADIUS);
+      glow.addColorStop(0, 'rgba(65, 105, 225, 0.04)');
+      glow.addColorStop(0.6, 'rgba(65, 105, 225, 0.01)');
+      glow.addColorStop(1, 'rgba(65, 105, 225, 0)');
+      ctx.fillStyle = glow;
+      ctx.fillRect(depX - RADIUS, depY - RADIUS, RADIUS * 2, RADIUS * 2);
+    }
 
-    ctx.shadowColor = 'transparent';
-    ctx.shadowBlur = 0;
-
+    // ---- 10. 继续下一帧 ----
     requestAnimationFrame(draw);
   }
 
