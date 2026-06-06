@@ -305,6 +305,12 @@ a:hover { color: var(--lemon-yellow); }
   z-index: 3;
   transition: border-color var(--transition-smooth), box-shadow var(--transition-smooth);
   overflow: hidden;
+  animation: breathe 3s ease-in-out infinite;
+}
+
+@keyframes breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
 }
 
 .hero-avatar-frame:hover {
@@ -1108,6 +1114,68 @@ a:hover { color: var(--lemon-yellow); }
 
   // Start
   setTimeout(() => typePair(textPairs[0]), 500);
+})();
+
+/* ========================================
+   AVATAR SPRING HOVER + BREATHING
+   ======================================== */
+(function() {
+  const frame = document.querySelector('.hero-avatar-frame');
+  if (!frame) return;
+
+  const STIFFNESS = 0.04;  // spring pull force
+  const DAMPING   = 0.62;  // friction (lower = more bouncy)
+  const HOVER     = 1.15;  // settled hover scale
+  const THRESHOLD = 0.0005;
+
+  let scale    = 1.0;
+  let velocity = 0;
+  let target   = 1.0;
+  let running  = false;
+  let rafId    = null;
+
+  function getCurrentScale() {
+    const m = window.getComputedStyle(frame).transform;
+    const match = m.match(/matrix\(([^,]+),\s*0,\s*0,\s*([^,]+)/);
+    if (match) return parseFloat(match[1]);
+    return 1.0;
+  }
+
+  function springStep() {
+    var force = (target - scale) * STIFFNESS;
+    velocity = (velocity + force) * DAMPING;
+    scale += velocity;
+
+    if (Math.abs(target - scale) < THRESHOLD && Math.abs(velocity) < THRESHOLD) {
+      scale = target;
+      velocity = 0;
+      running = false;
+      rafId = null;
+      if (target <= 1.0) {
+        frame.style.transform = '';
+        frame.style.animation = ''; // resume CSS breathing
+      } else {
+        frame.style.transform = 'scale(' + target + ')';
+      }
+      return;
+    }
+
+    frame.style.transform = 'scale(' + scale + ')';
+    rafId = requestAnimationFrame(springStep);
+  }
+
+  function startSpring(to) {
+    scale = getCurrentScale();
+    velocity = 0;
+    target = to;
+    frame.style.animation = 'none'; // stop breathing while spring runs
+    if (running && rafId) cancelAnimationFrame(rafId);
+    running = true;
+    rafId = requestAnimationFrame(springStep);
+  }
+
+  frame.addEventListener('mouseenter', function() { startSpring(HOVER); });
+  frame.addEventListener('mouseleave', function() { startSpring(1.0); });
 })();
 
 /* ========================================
