@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 -c \"print\\('ok'\\)\")",
+      "Bash(python -c \"print\\('ok'\\)\")",
+      "Bash(python3 *)",
+      "Bash(echo \"exit: $?\")",
+      "Bash(python *)"
+    ]
+  }
+}
