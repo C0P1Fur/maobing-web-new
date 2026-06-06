@@ -223,6 +223,12 @@ a:hover { color: var(--lemon-yellow); }
   flex-direction: column;
   align-items: center;
   gap: 12px;
+  transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+  cursor: default;
+}
+
+.hero-text-container:hover {
+  transform: scale(1.06);
 }
 
 .hero-line {
@@ -234,6 +240,7 @@ a:hover { color: var(--lemon-yellow); }
   position: relative;
   letter-spacing: -1.5px;
   line-height: 1.1;
+  animation: textBreatheIdle 4s ease-in-out infinite;
 }
 
 .hero-line.secondary {
@@ -241,6 +248,18 @@ a:hover { color: var(--lemon-yellow); }
   font-weight: 400;
   color: var(--text-secondary);
   letter-spacing: -0.5px;
+  animation: textBreatheIdle 4s ease-in-out infinite;
+  animation-delay: 0.5s;
+}
+
+/* Active breathing on hover */
+.hero-text-container:hover .hero-line {
+  animation: textBreatheActive 0.75s ease-in-out infinite;
+}
+
+.hero-text-container:hover .hero-line.secondary {
+  animation: textBreatheActive 0.75s ease-in-out infinite;
+  animation-delay: 0.2s;
 }
 
 .cursor {
@@ -282,6 +301,16 @@ a:hover { color: var(--lemon-yellow); }
 @keyframes fadeInUp {
   from { opacity: 0; transform: translateY(12px); }
   to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes textBreatheIdle {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.02); }
+}
+
+@keyframes textBreatheActive {
+  0%, 100% { transform: scale(0.97); }
+  50%      { transform: scale(1.04); }
 }
 
 /* Avatar wrapper — contains ring + frame */
