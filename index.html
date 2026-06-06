@@ -317,28 +317,44 @@ a:hover { color: var(--lemon-yellow); }
 .hero-avatar-wrapper {
   flex: 0 0 auto;
   position: relative;
-  width: clamp(200px, 26vw, 300px);
-  height: clamp(200px, 26vw, 300px);
+  width: clamp(160px, 20vw, 240px);
+  height: clamp(160px, 20vw, 240px);
   z-index: 3;
+  top: -36px;
+  transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+  cursor: pointer;
+}
+
+.hero-avatar-wrapper:hover {
+  transform: scale(1.15);
 }
 
 /* Circular text ring — breather wrapper (scale) */
 .hero-avatar-ring-breathe {
   position: absolute;
-  top: -28px;
-  left: -28px;
-  width: calc(100% + 56px);
-  height: calc(100% + 56px);
+  top: -40px;
+  left: -40px;
+  width: calc(100% + 80px);
+  height: calc(100% + 80px);
   overflow: visible;
   pointer-events: none;
   user-select: none;
-  animation: ringTextBreathe 3s ease-in-out infinite;
+  animation: ringBreatheIdle 4s ease-in-out infinite;
   transform-origin: center center;
 }
 
-@keyframes ringTextBreathe {
+.hero-avatar-wrapper:hover .hero-avatar-ring-breathe {
+  animation: ringBreatheActive 0.75s ease-in-out infinite;
+}
+
+@keyframes ringBreatheIdle {
   0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.05); }
+  50%      { transform: scale(1.03); }
+}
+
+@keyframes ringBreatheActive {
+  0%, 100% { transform: scale(0.94); }
+  50%      { transform: scale(1.08); }
 }
 
 /* Circular text ring — SVG (rotation) */
@@ -1195,68 +1211,6 @@ a:hover { color: var(--lemon-yellow); }
 
   // Start
   setTimeout(() => typePair(textPairs[0]), 500);
-})();
-
-/* ========================================
-   AVATAR SPRING HOVER + BREATHING
-   ======================================== */
-(function() {
-  const frame = document.querySelector('.hero-avatar-frame');
-  if (!frame) return;
-
-  const STIFFNESS = 0.04;  // spring pull force
-  const DAMPING   = 0.62;  // friction (lower = more bouncy)
-  const HOVER     = 1.15;  // settled hover scale
-  const THRESHOLD = 0.0005;
-
-  let scale    = 1.0;
-  let velocity = 0;
-  let target   = 1.0;
-  let running  = false;
-  let rafId    = null;
-
-  function getCurrentScale() {
-    const m = window.getComputedStyle(frame).transform;
-    const match = m.match(/matrix\(([^,]+),\s*0,\s*0,\s*([^,]+)/);
-    if (match) return parseFloat(match[1]);
-    return 1.0;
-  }
-
-  function springStep() {
-    var force = (target - scale) * STIFFNESS;
-    velocity = (velocity + force) * DAMPING;
-    scale += velocity;
-
-    if (Math.abs(target - scale) < THRESHOLD && Math.abs(velocity) < THRESHOLD) {
-      scale = target;
-      velocity = 0;
-      running = false;
-      rafId = null;
-      if (target <= 1.0) {
-        frame.style.transform = '';
-        frame.style.animation = ''; // resume CSS breathing
-      } else {
-        frame.style.transform = 'scale(' + target + ')';
-      }
-      return;
-    }
-
-    frame.style.transform = 'scale(' + scale + ')';
-    rafId = requestAnimationFrame(springStep);
-  }
-
-  function startSpring(to) {
-    scale = getCurrentScale();
-    velocity = 0;
-    target = to;
-    frame.style.animation = 'none'; // stop breathing while spring runs
-    if (running && rafId) cancelAnimationFrame(rafId);
-    running = true;
-    rafId = requestAnimationFrame(springStep);
-  }
-
-  frame.addEventListener('mouseenter', function() { startSpring(HOVER); });
-  frame.addEventListener('mouseleave', function() { startSpring(1.0); });
 })();
 
 /* ========================================
