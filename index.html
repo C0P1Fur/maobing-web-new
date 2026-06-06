@@ -1,0 +1,1283 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MAOBING // Dev Blog</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ========================================
+   DESIGN TOKENS
+   ======================================== */
+:root {
+  --bg-deep: #0a0a14;
+  --bg-surface: #0f0f1e;
+  --bg-card: rgba(15, 15, 35, 0.6);
+  --royal-blue: #4169E1;
+  --royal-blue-glow: rgba(65, 105, 225, 0.4);
+  --lemon-yellow: #FFD700;
+  --lemon-yellow-glow: rgba(255, 215, 0, 0.3);
+  --text-primary: #e0e0f0;
+  --text-secondary: #8888aa;
+  --text-dim: #555577;
+  --glass-bg: rgba(10, 10, 25, 0.65);
+  --glass-border: rgba(65, 105, 225, 0.15);
+  --glass-border-hover: rgba(65, 105, 225, 0.4);
+  --font-mono: 'JetBrains Mono', monospace;
+  --font-sans: 'Space Grotesk', sans-serif;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 16px;
+  --space-unit: 8px;
+  --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-smooth: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ========================================
+   RESET & BASE
+   ======================================== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+  scroll-behavior: smooth;
+  font-size: 16px;
+}
+
+body {
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  line-height: 1.6;
+  overflow-x: hidden;
+  cursor: default;
+}
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-deep); }
+::-webkit-scrollbar-thumb { background: var(--royal-blue); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--lemon-yellow); }
+
+::selection {
+  background: var(--royal-blue);
+  color: #fff;
+}
+
+a { color: var(--royal-blue); text-decoration: none; transition: color var(--transition-fast); }
+a:hover { color: var(--lemon-yellow); }
+
+/* ========================================
+   3D GRID BACKGROUND CANVAS
+   ======================================== */
+#grid-canvas {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* ========================================
+   SCAN LINE OVERLAY
+   ======================================== */
+.scanlines {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: 1;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.03) 2px,
+    rgba(0, 0, 0, 0.03) 4px
+  );
+}
+
+/* ========================================
+   NAVIGATION
+   ======================================== */
+.nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  padding: 16px 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(10, 10, 20, 0.8);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--glass-border);
+  transition: background var(--transition-fast);
+}
+
+.nav-logo {
+  font-family: var(--font-mono);
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.5px;
+}
+
+.nav-logo .accent { color: var(--lemon-yellow); }
+.nav-logo .slash { color: var(--royal-blue); }
+
+.nav-links {
+  display: flex;
+  gap: 32px;
+  list-style: none;
+}
+
+.nav-links a {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  position: relative;
+  padding: 4px 0;
+  transition: color var(--transition-fast);
+}
+
+.nav-links a::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0;
+  width: 0; height: 1px;
+  background: var(--lemon-yellow);
+  transition: width var(--transition-fast);
+}
+
+.nav-links a:hover { color: var(--lemon-yellow); }
+.nav-links a:hover::after { width: 100%; }
+
+.nav-links a .prefix { color: var(--royal-blue); font-size: 0.75rem; }
+
+/* ========================================
+   SECTION COMMONS
+   ======================================== */
+.section {
+  position: relative;
+  z-index: 2;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 32px;
+}
+
+.section-label {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--royal-blue);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+  opacity: 0.8;
+}
+
+.section-label::before { content: '// '; }
+.section-title {
+  font-family: var(--font-mono);
+  font-size: clamp(1.5rem, 3vw, 2.2rem);
+  font-weight: 700;
+  margin-bottom: 48px;
+  text-align: center;
+  position: relative;
+}
+
+.section-title::after {
+  content: '';
+  display: block;
+  width: 60px; height: 2px;
+  background: var(--lemon-yellow);
+  margin: 16px auto 0;
+}
+
+/* ========================================
+   HERO / HOMEPAGE (Section 1)
+   ======================================== */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 2;
+  padding: 32px;
+}
+
+.hero-decoration {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  position: absolute;
+  opacity: 0.6;
+}
+
+.hero-decoration.top-left     { top: 120px; left: 48px; }
+.hero-decoration.top-right    { top: 120px; right: 48px; }
+.hero-decoration.bottom-left  { bottom: 80px; left: 48px; }
+.hero-decoration.bottom-right { bottom: 80px; right: 48px; }
+
+.hero-text-container {
+  text-align: center;
+  min-height: 180px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+
+.hero-line {
+  font-family: var(--font-mono);
+  font-size: clamp(1.8rem, 5vw, 3.5rem);
+  font-weight: 700;
+  color: var(--text-primary);
+  min-height: 1.2em;
+  position: relative;
+  letter-spacing: -1px;
+}
+
+.hero-line.secondary {
+  font-size: clamp(1rem, 2.5vw, 1.6rem);
+  font-weight: 400;
+  color: var(--text-secondary);
+}
+
+.cursor {
+  display: inline-block;
+  width: 3px;
+  height: 1em;
+  background: var(--lemon-yellow);
+  margin-left: 2px;
+  vertical-align: text-bottom;
+  animation: cursor-blink 0.8s steps(2) infinite;
+}
+
+@keyframes cursor-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.cursor.hidden { opacity: 0; animation: none; }
+
+.hero-jump {
+  animation: heroJump 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+}
+
+@keyframes heroJump {
+  0% { transform: scale(0.8); opacity: 0; }
+  60% { transform: scale(1.05); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.hero-subtitle {
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  color: var(--text-dim);
+  margin-top: 32px;
+  opacity: 0;
+  animation: fadeInUp 0.6s 2s forwards;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.hero-scroll-hint {
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  animation: floatDown 2s ease-in-out infinite;
+  cursor: pointer;
+}
+
+@keyframes floatDown {
+  0%, 100% { transform: translateX(-50%) translateY(0); opacity: 0.4; }
+  50% { transform: translateX(-50%) translateY(8px); opacity: 0.8; }
+}
+
+/* ========================================
+   COVER FLOW / PERSONAL INTRO (Section 2)
+   ======================================== */
+.coverflow-container {
+  width: 100%;
+  max-width: 900px;
+  height: 420px;
+  perspective: 1200px;
+  perspective-origin: 50% 50%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.coverflow-track {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.coverflow-card {
+  position: absolute;
+  width: 320px;
+  max-width: 80vw;
+  padding: 32px 28px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  text-align: center;
+  cursor: pointer;
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 0.3s ease,
+              box-shadow 0.3s ease;
+  user-select: none;
+}
+
+.coverflow-card.active {
+  border-color: var(--glass-border-hover);
+  box-shadow: 0 0 40px var(--royal-blue-glow), 0 0 80px rgba(65, 105, 225, 0.1);
+}
+
+.coverflow-card-icon {
+  font-size: 2.2rem;
+  margin-bottom: 16px;
+  display: block;
+  font-family: var(--font-mono);
+}
+
+.coverflow-card-title {
+  font-family: var(--font-mono);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+}
+
+.coverflow-card-desc {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.coverflow-nav {
+  display: flex;
+  gap: 24px;
+  margin-top: 24px;
+  z-index: 10;
+}
+
+.coverflow-nav button {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: var(--text-primary);
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.coverflow-nav button:hover {
+  border-color: var(--royal-blue);
+  box-shadow: 0 0 20px var(--royal-blue-glow);
+  color: var(--lemon-yellow);
+}
+
+.coverflow-dots {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.coverflow-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--text-dim);
+  border: none;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.coverflow-dot.active {
+  background: var(--lemon-yellow);
+  box-shadow: 0 0 8px var(--lemon-yellow-glow);
+  width: 24px;
+  border-radius: 4px;
+}
+
+/* ========================================
+   GALLERY CAROUSEL (Section 3) - Center Focus
+   ======================================== */
+.gallery-stage {
+  position: relative;
+  width: 100%;
+  max-width: 900px;
+  height: 420px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.gallery-card {
+  position: absolute;
+  width: 360px;
+  max-width: 72vw;
+  height: 380px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  overflow: hidden;
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 0.3s ease,
+              box-shadow 0.3s ease;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+}
+
+.gallery-card.focused {
+  border-color: var(--glass-border-hover);
+  box-shadow: 0 0 40px var(--royal-blue-glow), 0 8px 32px rgba(0, 0, 0, 0.5);
+  z-index: 10;
+}
+
+.gallery-card-image {
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 3rem;
+  color: rgba(255,255,255,0.15);
+  position: relative;
+  overflow: hidden;
+}
+
+.gallery-card-image::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 40%;
+  background: linear-gradient(to top, var(--bg-surface), transparent);
+}
+
+.gallery-card-info {
+  padding: 20px 24px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.gallery-card-info h3 {
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.gallery-card-info p {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+.gallery-card-tag {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  padding: 4px 10px;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm);
+  color: var(--royal-blue);
+  margin-top: auto;
+  align-self: flex-start;
+}
+
+.gallery-controls {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-top: 12px;
+}
+
+.gallery-controls button {
+  width: 48px; height: 48px;
+  border-radius: 50%;
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: var(--text-primary);
+  font-size: 1.3rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gallery-controls button:hover {
+  border-color: var(--royal-blue);
+  box-shadow: 0 0 20px var(--royal-blue-glow);
+  color: var(--lemon-yellow);
+}
+
+.gallery-indicator {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+/* ========================================
+   FRIEND LINKS (Section 4) - Cascade
+   ======================================== */
+.friend-links-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 20px;
+  width: 100%;
+  max-width: 1000px;
+}
+
+.friend-link-card {
+  padding: 24px;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  background: var(--glass-bg);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: all var(--transition-fast);
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+.friend-link-card.visible {
+  animation: cascadeIn 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes cascadeIn {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.friend-link-card:hover {
+  border-color: var(--glass-border-hover);
+  box-shadow: 0 4px 24px var(--royal-blue-glow);
+  transform: translateY(-4px);
+}
+
+.friend-link-card:hover .friend-link-arrow {
+  transform: translateX(4px);
+  color: var(--lemon-yellow);
+}
+
+.friend-link-name {
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.friend-link-desc {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+  line-height: 1.4;
+}
+
+.friend-link-arrow {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--royal-blue);
+  transition: all var(--transition-fast);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ========================================
+   FOOTER
+   ======================================== */
+.footer {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  padding: 48px 32px;
+  border-top: 1px solid var(--glass-border);
+}
+
+.footer-text {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--text-dim);
+}
+
+.footer-text .accent { color: var(--royal-blue); }
+
+/* ========================================
+   GLASSMORPHISM ID CARD (floating)
+   ======================================== */
+.glass-id-card {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 100;
+  padding: 12px 20px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all var(--transition-fast);
+  cursor: pointer;
+}
+
+.glass-id-card:hover {
+  border-color: var(--royal-blue);
+  box-shadow: 0 0 24px var(--royal-blue-glow);
+}
+
+.glass-id-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--lemon-yellow);
+  box-shadow: 0 0 8px var(--lemon-yellow-glow);
+  animation: dotPulse 2s ease-in-out infinite;
+}
+
+@keyframes dotPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+@media (max-width: 768px) {
+  .nav { padding: 12px 16px; }
+  .nav-links { gap: 16px; }
+  .nav-links a { font-size: 0.7rem; }
+
+  .hero-decoration { display: none; }
+
+  .hero-line {
+    font-size: clamp(1.3rem, 6vw, 2rem) !important;
+  }
+  .hero-line.secondary {
+    font-size: clamp(0.85rem, 4vw, 1.2rem) !important;
+  }
+
+  .coverflow-container { height: 360px; }
+  .coverflow-card { width: 260px; padding: 24px 20px; }
+
+  .gallery-card { width: 300px; max-width: 75vw; height: 340px; }
+  .gallery-stage { height: 380px; }
+
+  .friend-links-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .glass-id-card { bottom: 12px; right: 12px; font-size: 0.7rem; }
+}
+
+@media (max-width: 480px) {
+  .nav-links { gap: 10px; }
+  .nav-links a { font-size: 0.65rem; }
+  .section { padding: 60px 16px; }
+  .coverflow-container { height: 320px; }
+  .coverflow-card { width: 240px; padding: 20px 16px; }
+}
+</style>
+</head>
+<body>
+
+<!-- 3D GRID BACKGROUND -->
+<canvas id="grid-canvas"></canvas>
+<div class="scanlines"></div>
+
+<!-- NAVIGATION -->
+<nav class="nav">
+  <div class="nav-logo"><span class="slash">//</span> MAOBING <span class="accent">>_</span></div>
+  <ul class="nav-links">
+    <li><a href="#home"><span class="prefix">01</span> Home</a></li>
+    <li><a href="#about"><span class="prefix">02</span> About</a></li>
+    <li><a href="#gallery"><span class="prefix">03</span> Works</a></li>
+    <li><a href="#friends"><span class="prefix">04</span> Links</a></li>
+  </ul>
+</nav>
+
+<!-- SECTION 1: HERO -->
+<section class="hero" id="home">
+  <div class="hero-decoration top-left">/* v2.0.1 */</div>
+  <div class="hero-decoration top-right">&lt;header&gt;</div>
+  <div class="hero-decoration bottom-left">&lt;/header&gt;</div>
+  <div class="hero-decoration bottom-right">// CTRL+C to continue</div>
+
+  <div class="hero-text-container" id="heroText">
+    <div class="hero-line" id="heroLine1"></div>
+    <div class="hero-line secondary" id="heroLine2"></div>
+  </div>
+
+  <p class="hero-subtitle">&gt; Building digital experiences, one commit at a time.</p>
+
+  <div class="hero-scroll-hint" onclick="window.scrollTo({top:document.getElementById('about').offsetTop,behavior:'smooth'})">
+    [ scroll down ]
+  </div>
+</section>
+
+<!-- SECTION 2: COVER FLOW / PERSONAL INTRO -->
+<section class="section" id="about">
+  <div class="section-label">About Me</div>
+  <h2 class="section-title">>_ whoami</h2>
+
+  <div class="coverflow-container" id="coverflowContainer">
+    <div class="coverflow-track" id="coverflowTrack"></div>
+  </div>
+
+  <div class="coverflow-nav">
+    <button id="cfPrev" aria-label="Previous">&#10094;</button>
+    <div class="coverflow-dots" id="coverflowDots"></div>
+    <button id="cfNext" aria-label="Next">&#10095;</button>
+  </div>
+</section>
+
+<!-- SECTION 3: GALLERY CAROUSEL -->
+<section class="section" id="gallery">
+  <div class="section-label">Portfolio</div>
+  <h2 class="section-title">// projects</h2>
+
+  <div class="gallery-stage" id="galleryStage"></div>
+
+  <div class="gallery-controls">
+    <button id="galPrev" aria-label="Previous">&#10094;</button>
+    <span class="gallery-indicator" id="galIndicator">1 / 6</span>
+    <button id="galNext" aria-label="Next">&#10095;</button>
+  </div>
+</section>
+
+<!-- SECTION 4: FRIEND LINKS -->
+<section class="section" id="friends">
+  <div class="section-label">Friends</div>
+  <h2 class="section-title">// links &amp; friends</h2>
+
+  <div class="friend-links-grid" id="friendLinksGrid"></div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <p class="footer-text">Designed &amp; Built with <span class="accent">&lt;/&gt;</span> by Maobing &mdash; &copy; 2026</p>
+</footer>
+
+<!-- FLOATING ID CARD -->
+<div class="glass-id-card" id="idCard">
+  <div class="glass-id-dot"></div>
+  <span>MAOBING<span style="color:var(--text-dim)">@dev</span></span>
+</div>
+
+<!-- SCRIPTS -->
+<script>
+/* ========================================
+   3D CYBER GRID BACKGROUND
+   ======================================== */
+(function() {
+  const canvas = document.getElementById('grid-canvas');
+  const ctx = canvas.getContext('2d');
+  let mouseX = window.innerWidth / 2;
+  let mouseY = window.innerHeight / 2;
+  let targetMouseX = mouseX;
+  let targetMouseY = mouseY;
+
+  function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  document.addEventListener('mousemove', (e) => {
+    targetMouseX = e.clientX;
+    targetMouseY = e.clientY;
+  });
+
+  function draw() {
+    const w = canvas.width;
+    const h = canvas.height;
+
+    // Smooth mouse follow
+    mouseX += (targetMouseX - mouseX) * 0.05;
+    mouseY += (targetMouseY - mouseY) * 0.05;
+
+    // Vanishing point shifted by mouse
+    const vpX = w / 2 + (mouseX - w / 2) * 0.15;
+    const vpY = h * 0.35 + (mouseY - h / 2) * 0.08;
+
+    ctx.clearRect(0, 0, w, h);
+
+    // Draw horizontal grid lines (floor perspective)
+    const numHLines = 30;
+    const startY = vpY + 40;
+    const endY = h + 200;
+
+    for (let i = 0; i < numHLines; i++) {
+      const t = i / numHLines;
+      const y = startY + (endY - startY) * Math.pow(t, 2.2);
+
+      if (y > h + 100) continue;
+
+      const alpha = 0.08 + 0.12 * (1 - t);
+      const lineWidth = 0.5 + 1 * (1 - t);
+
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(w, y);
+      ctx.strokeStyle = `rgba(65, 105, 225, ${alpha})`;
+      ctx.lineWidth = lineWidth;
+      ctx.shadowColor = `rgba(65, 105, 225, ${alpha * 0.5})`;
+      ctx.shadowBlur = 3 * (1 - t);
+      ctx.stroke();
+    }
+
+    // Draw vertical radiating lines
+    const numVLines = 40;
+    for (let i = 0; i < numVLines; i++) {
+      const t = i / (numVLines - 1);
+      const angle = -Math.PI / 2 + (-Math.PI / 2.8) + t * (Math.PI / 1.4);
+      const dx = Math.cos(angle);
+      const dy = Math.sin(angle);
+
+      const farDist = h * 2.5;
+      const endX = vpX + dx * farDist;
+      const endY = vpY + dy * farDist;
+
+      const alpha = 0.03 + 0.06 * Math.abs(t - 0.5) * 2;
+
+      ctx.beginPath();
+      ctx.moveTo(vpX, vpY);
+      ctx.lineTo(endX, endY);
+      ctx.strokeStyle = `rgba(65, 105, 225, ${alpha})`;
+      ctx.lineWidth = 0.5;
+      ctx.shadowColor = 'transparent';
+      ctx.shadowBlur = 0;
+      ctx.stroke();
+    }
+
+    // Vanishing point glow
+    const glow = ctx.createRadialGradient(vpX, vpY, 0, vpX, vpY, 80);
+    glow.addColorStop(0, 'rgba(65, 105, 225, 0.08)');
+    glow.addColorStop(1, 'rgba(65, 105, 225, 0)');
+    ctx.fillStyle = glow;
+    ctx.fillRect(vpX - 80, vpY - 80, 160, 160);
+
+    // Extra accent lines near horizon
+    ctx.beginPath();
+    ctx.moveTo(vpX - 200, vpY);
+    ctx.lineTo(vpX + 200, vpY);
+    ctx.strokeStyle = 'rgba(255, 215, 0, 0.06)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    ctx.shadowColor = 'transparent';
+    ctx.shadowBlur = 0;
+
+    requestAnimationFrame(draw);
+  }
+
+  draw();
+})();
+
+/* ========================================
+   TYPEWRITER + TEXT CAROUSEL
+   ======================================== */
+(function() {
+  const textPairs = [
+    ['Hello, World.', 'I build things for the web.'],
+    ['>_ ./think.sh', 'Exploring code & creativity.'],
+    ['// TODO: Change the world', 'One commit at a time.'],
+    ['while (true) {', '  learn(); create(); share(); }'],
+    ['const dream = reality', '// under construction'],
+  ];
+
+  const line1El = document.getElementById('heroLine1');
+  const line2El = document.getElementById('heroLine2');
+  let pairIndex = 0;
+  let cursorEl = null;
+  let isTyping = false;
+
+  function createCursor(parent) {
+    const cursor = document.createElement('span');
+    cursor.className = 'cursor';
+    parent.appendChild(cursor);
+    return cursor;
+  }
+
+  function removeCursor() {
+    if (cursorEl) { cursorEl.remove(); cursorEl = null; }
+  }
+
+  function typeText(el, text, speed, callback) {
+    let i = 0;
+    el.textContent = '';
+    cursorEl = createCursor(el);
+
+    function tick() {
+      if (i < text.length) {
+        el.textContent += text[i];
+        i++;
+        const delay = text[i - 1] === ' ' ? speed * 2 : speed + Math.random() * 40;
+        setTimeout(tick, delay);
+      } else {
+        if (callback) callback();
+      }
+    }
+
+    setTimeout(tick, 200);
+  }
+
+  function typePair(pair) {
+    if (isTyping) return;
+    isTyping = true;
+
+    // Jump animation before typing
+    const container = document.getElementById('heroText');
+    container.classList.add('hero-jump');
+    setTimeout(() => container.classList.remove('hero-jump'), 300);
+
+    removeCursor();
+    line1El.textContent = '';
+    line2El.textContent = '';
+
+    typeText(line1El, pair[0], 60, () => {
+      typeText(line2El, pair[1], 50, () => {
+        isTyping = false;
+        // Pause then carousel to next
+        setTimeout(() => {
+          pairIndex = (pairIndex + 1) % textPairs.length;
+          typePair(textPairs[pairIndex]);
+        }, 3000);
+      });
+    });
+  }
+
+  // Start
+  setTimeout(() => typePair(textPairs[0]), 500);
+})();
+
+/* ========================================
+   COVER FLOW
+   ======================================== */
+(function() {
+  const cards = [
+    { icon: '</>', title: 'Full-Stack Developer', desc: 'Building end-to-end solutions with React, Vue, Node.js, and cloud-native technologies. Turning ideas into scalable products.' },
+    { icon: '{ }', title: 'Open Source Contributor', desc: 'Active in the open-source community. Believing code wants to be free and collaboration drives innovation forward.' },
+    { icon: '/*!', title: 'Tech Blogger', desc: 'Sharing insights through technical articles. Making complex concepts accessible with clear explanations and practical examples.' },
+    { icon: '[]', title: 'UI/UX Crafter', desc: 'Obsessed with pixel-perfect interfaces and smooth interactions. Design is not just how it looks, but how it works.' },
+    { icon: '>>', title: 'Lifelong Learner', desc: 'Constantly exploring emerging technologies, from AI to WebAssembly. The best investment is in knowledge.' },
+  ];
+
+  const track = document.getElementById('coverflowTrack');
+  const dotsContainer = document.getElementById('coverflowDots');
+  let activeIndex = 2;
+
+  function render() {
+    track.innerHTML = '';
+    dotsContainer.innerHTML = '';
+
+    cards.forEach((card, i) => {
+      const el = document.createElement('div');
+      el.className = 'coverflow-card' + (i === activeIndex ? ' active' : '');
+      el.innerHTML = `
+        <span class="coverflow-card-icon">${card.icon}</span>
+        <h3 class="coverflow-card-title">${card.title}</h3>
+        <p class="coverflow-card-desc">${card.desc}</p>
+      `;
+      el.addEventListener('click', () => setActive(i));
+
+      const offset = i - activeIndex;
+      const absOff = Math.abs(offset);
+      const sign = offset === 0 ? 0 : offset > 0 ? 1 : -1;
+
+      const translateX = offset * 280;
+      const rotateY = sign * absOff * 35;
+      const translateZ = -absOff * 180;
+      const scale = 1 - absOff * 0.12;
+      const opacity = absOff === 0 ? 1 : absOff === 1 ? 0.7 : 0.35;
+      const zIndex = 10 - absOff;
+
+      el.style.transform = `translateX(${translateX}px) rotateY(${rotateY}deg) translateZ(${translateZ}px) scale(${scale})`;
+      el.style.opacity = Math.max(0, opacity);
+      el.style.zIndex = zIndex;
+      el.style.pointerEvents = absOff <= 1 ? 'auto' : 'none';
+
+      track.appendChild(el);
+
+      // Dot
+      const dot = document.createElement('button');
+      dot.className = 'coverflow-dot' + (i === activeIndex ? ' active' : '');
+      dot.addEventListener('click', () => setActive(i));
+      dot.setAttribute('aria-label', `Go to card ${i + 1}`);
+      dotsContainer.appendChild(dot);
+    });
+  }
+
+  function setActive(i) {
+    if (i < 0) i = cards.length - 1;
+    if (i >= cards.length) i = 0;
+    activeIndex = i;
+    render();
+  }
+
+  document.getElementById('cfPrev').addEventListener('click', () => setActive(activeIndex - 1));
+  document.getElementById('cfNext').addEventListener('click', () => setActive(activeIndex + 1));
+
+  // Keyboard (only when coverflow section is visible)
+  document.addEventListener('keydown', (e) => {
+    const rect = document.getElementById('coverflowContainer').getBoundingClientRect();
+    if (rect.top > window.innerHeight || rect.bottom < 0) return;
+    if (e.key === 'ArrowLeft') { e.preventDefault(); setActive(activeIndex - 1); }
+    if (e.key === 'ArrowRight') { e.preventDefault(); setActive(activeIndex + 1); }
+  });
+
+  // Touch swipe
+  let touchStartX = 0;
+  track.addEventListener('touchstart', (e) => { touchStartX = e.touches[0].clientX; });
+  track.addEventListener('touchend', (e) => {
+    const diff = touchStartX - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 50) {
+      setActive(activeIndex + (diff > 0 ? 1 : -1));
+    }
+  });
+
+  render();
+})();
+
+/* ========================================
+   GALLERY CAROUSEL - Center Focus
+   ======================================== */
+(function() {
+  const projects = [
+    { title: 'Project Alpha', desc: 'Real-time collaborative editor with WebSocket sync and CRDT-based conflict resolution.', tag: 'React / Node.js', color: '#4169E1' },
+    { title: 'Project Beta', desc: 'ML model visualization dashboard with interactive data flow graphs.', tag: 'Python / D3.js', color: '#FFD700' },
+    { title: 'Project Gamma', desc: 'High-performance CLI framework for automating DevOps workflows.', tag: 'Rust / Go', color: '#00CED1' },
+    { title: 'Project Delta', desc: 'Mobile-first design system with 50+ accessible components.', tag: 'Vue / Storybook', color: '#FF6B6B' },
+    { title: 'Project Epsilon', desc: 'Cloud infrastructure monitoring with real-time alerting and auto-scaling.', tag: 'AWS / Terraform', color: '#7B68EE' },
+    { title: 'Project Zeta', desc: 'Developer productivity toolkit with smart code generation and refactoring tools.', tag: 'TypeScript / AST', color: '#2ECC71' },
+  ];
+
+  const stage = document.getElementById('galleryStage');
+  const indicator = document.getElementById('galIndicator');
+  let activeIndex = 0;
+  const cards = [];
+
+  function createCards() {
+    stage.innerHTML = '';
+    cards.length = 0;
+    projects.forEach((proj, i) => {
+      const el = document.createElement('div');
+      el.className = 'gallery-card';
+      el.innerHTML = `
+        <div class="gallery-card-image" style="background:linear-gradient(135deg, ${proj.color}22, ${proj.color}08)">
+          <span style="font-size:4rem;opacity:0.15;font-family:var(--font-mono)">{${i}}</span>
+        </div>
+        <div class="gallery-card-info">
+          <h3>${proj.title}</h3>
+          <p>${proj.desc}</p>
+          <span class="gallery-card-tag">${proj.tag}</span>
+        </div>
+      `;
+      el.addEventListener('click', () => {
+        if (i !== activeIndex) setActive(i);
+      });
+      stage.appendChild(el);
+      cards.push(el);
+    });
+    updatePositions();
+  }
+
+  function updatePositions() {
+    cards.forEach((card, i) => {
+      const offset = i - activeIndex;
+      const absOff = Math.abs(offset);
+      const sign = offset === 0 ? 0 : offset > 0 ? 1 : -1;
+
+      card.classList.toggle('focused', offset === 0);
+
+      if (absOff === 0) {
+        card.style.transform = 'translateX(0) scale(1)';
+        card.style.opacity = '1';
+        card.style.zIndex = '10';
+        card.style.pointerEvents = 'auto';
+        card.style.filter = 'none';
+      } else if (absOff === 1) {
+        const x = sign * 56 + '%';
+        card.style.transform = `translateX(${x}) scale(0.82)`;
+        card.style.opacity = '0.55';
+        card.style.zIndex = '5';
+        card.style.pointerEvents = 'auto';
+        card.style.filter = 'brightness(0.7)';
+      } else {
+        const x = sign * 72 + '%';
+        card.style.transform = `translateX(${x}) scale(0.65)`;
+        card.style.opacity = '0';
+        card.style.zIndex = '1';
+        card.style.pointerEvents = 'none';
+        card.style.filter = 'brightness(0.5)';
+      }
+    });
+
+    indicator.textContent = `${activeIndex + 1} / ${projects.length}`;
+  }
+
+  function setActive(i) {
+    if (i < 0) i = projects.length - 1;
+    if (i >= projects.length) i = 0;
+    activeIndex = i;
+    updatePositions();
+  }
+
+  document.getElementById('galPrev').addEventListener('click', () => setActive(activeIndex - 1));
+  document.getElementById('galNext').addEventListener('click', () => setActive(activeIndex + 1));
+
+  // Touch swipe
+  let touchStartX = 0;
+  stage.addEventListener('touchstart', (e) => { touchStartX = e.touches[0].clientX; });
+  stage.addEventListener('touchend', (e) => {
+    const diff = touchStartX - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 40) setActive(activeIndex + (diff > 0 ? 1 : -1));
+  });
+
+  // Mouse drag
+  let isDragging = false;
+  let dragStartX = 0;
+  stage.addEventListener('mousedown', (e) => {
+    isDragging = true;
+    dragStartX = e.clientX;
+    cards.forEach(c => { c.style.transition = 'none'; });
+  });
+  window.addEventListener('mousemove', (e) => {
+    if (!isDragging) return;
+    e.preventDefault();
+  });
+  window.addEventListener('mouseup', (e) => {
+    if (!isDragging) return;
+    isDragging = false;
+    cards.forEach(c => { c.style.transition = ''; });
+    const diff = dragStartX - e.clientX;
+    if (Math.abs(diff) > 60) {
+      setActive(activeIndex + (diff > 0 ? 1 : -1));
+    }
+  });
+
+  // Keyboard navigation when gallery is in view
+  document.addEventListener('keydown', (e) => {
+    const rect = stage.getBoundingClientRect();
+    const inView = rect.top < window.innerHeight && rect.bottom > 0;
+    if (!inView) return;
+    if (e.key === 'ArrowLeft') { e.preventDefault(); setActive(activeIndex - 1); }
+    if (e.key === 'ArrowRight') { e.preventDefault(); setActive(activeIndex + 1); }
+  });
+
+  createCards();
+  window.addEventListener('resize', updatePositions);
+})();
+
+/* ========================================
+   FRIEND LINKS - CASCADE ANIMATION
+   ======================================== */
+(function() {
+  const links = [
+    { name: 'TechBlog Pro', desc: '前沿技术深度解析与行业趋势洞察', url: '#' },
+    { name: 'Code & Beyond', desc: '编程技巧、架构设计与最佳实践分享', url: '#' },
+    { name: 'Pixel Perfect', desc: 'UI/UX 设计灵感与前端动效探索', url: '#' },
+    { name: 'Data Driven', desc: '数据科学、机器学习与可视化技术', url: '#' },
+    { name: 'Open Dev', desc: '开源项目、社区贡献与开发者工具', url: '#' },
+    { name: 'Cloud Native', desc: '云原生架构、DevOps 与基础设施', url: '#' },
+  ];
+
+  const grid = document.getElementById('friendLinksGrid');
+
+  links.forEach((link, i) => {
+    const el = document.createElement('a');
+    el.className = 'friend-link-card';
+    el.href = link.url;
+    el.style.animationDelay = `${i * 0.1}s`;
+    el.innerHTML = `
+      <div class="friend-link-name">${link.name}</div>
+      <div class="friend-link-desc">${link.desc}</div>
+      <div class="friend-link-arrow">visit &rarr;</div>
+    `;
+    grid.appendChild(el);
+  });
+
+  // Intersection Observer for cascade trigger
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const cards = grid.querySelectorAll('.friend-link-card');
+        cards.forEach((card, i) => {
+          card.style.animationDelay = `${i * 0.1}s`;
+          card.classList.add('visible');
+        });
+      } else {
+        // Reset for re-trigger
+        grid.querySelectorAll('.friend-link-card').forEach(c => c.classList.remove('visible'));
+      }
+    });
+  }, { threshold: 0.2 });
+
+  observer.observe(grid);
+})();
+
+/* ========================================
+   GLASS ID CARD - COPY ON CLICK
+   ======================================== */
+(function() {
+  const idCard = document.getElementById('idCard');
+  idCard.addEventListener('click', () => {
+    const original = idCard.querySelector('span').textContent;
+    idCard.querySelector('span').textContent = 'COPIED!';
+    idCard.style.borderColor = 'var(--lemon-yellow)';
+    setTimeout(() => {
+      idCard.querySelector('span').innerHTML = 'MAOBING<span style="color:var(--text-dim)">@dev</span>';
+      idCard.style.borderColor = 'var(--glass-border)';
+    }, 1500);
+  });
+})();
+</script>
+</body>
+</html>
