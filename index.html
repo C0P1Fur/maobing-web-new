@@ -284,11 +284,43 @@ a:hover { color: var(--lemon-yellow); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
+/* Avatar wrapper — contains ring + frame */
+.hero-avatar-wrapper {
+  flex: 0 0 auto;
+  position: relative;
+  width: clamp(200px, 26vw, 300px);
+  height: clamp(200px, 26vw, 300px);
+  z-index: 3;
+}
+
+/* Circular text ring — SVG textPath orbiting the avatar */
+.hero-avatar-ring {
+  position: absolute;
+  top: -36px;
+  left: -36px;
+  width: calc(100% + 72px);
+  height: calc(100% + 72px);
+  overflow: visible;
+  pointer-events: none;
+  user-select: none;
+  animation: ringTextSpin 15s linear infinite,
+             ringTextBreathe 4s ease-in-out infinite;
+  transform-origin: center center;
+}
+
+@keyframes ringTextSpin {
+  to { rotate: 360deg; }
+}
+
+@keyframes ringTextBreathe {
+  0%, 100% { scale: 1; }
+  50% { scale: 1.05; }
+}
+
 /* Avatar frame — frosted glass */
 .hero-avatar-frame {
-  flex: 0 0 auto;
-  width: clamp(260px, 34vw, 420px);
-  height: clamp(260px, 34vw, 420px);
+  position: absolute;
+  inset: 0;
   border-radius: 50%;
   border: 2px solid var(--glass-border-hover);
   background: var(--glass-bg);
@@ -301,8 +333,7 @@ a:hover { color: var(--lemon-yellow); }
   display: flex;
   align-items: center;
   justify-content: center;
-  position: relative;
-  z-index: 3;
+  z-index: 1;
   transition: border-color var(--transition-smooth), box-shadow var(--transition-smooth);
   overflow: hidden;
   animation: breathe 3s ease-in-out infinite;
@@ -756,7 +787,7 @@ a:hover { color: var(--lemon-yellow); }
   .hero-left { max-width: 100%; }
   .hero-line { font-size: clamp(1.8rem, 8vw, 2.8rem) !important; }
   .hero-line.secondary { font-size: clamp(1rem, 5vw, 1.4rem) !important; }
-  .hero-avatar-frame { width: 200px; height: 200px; }
+  .hero-avatar-wrapper { width: 160px; height: 160px; }
   .hero-subtitle { text-align: center; }
 
   .coverflow-container { height: 360px; }
@@ -797,10 +828,23 @@ a:hover { color: var(--lemon-yellow); }
   <div class="hero-decoration bottom-left">&lt;/header&gt;</div>
   <div class="hero-decoration bottom-right">// CTRL+C to continue</div>
 
-  <div class="hero-avatar-frame">
-    <div class="hero-avatar-placeholder">
-      <span class="icon">[ + ]</span>
-      add your<br>avatar here
+  <div class="hero-avatar-wrapper">
+    <svg class="hero-avatar-ring" viewBox="0 0 200 200">
+      <defs>
+        <path id="textCircle" d="M 100 8 A 92 92 0 1 1 99.99 8" />
+      </defs>
+      <text font-family="'JetBrains Mono', 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="12.5" fill="#ffffff"
+            font-weight="600" letter-spacing="3" text-anchor="middle">
+        <textPath href="#textCircle" startOffset="0%">
+          MAOBING <tspan fill="#4169E1">&#9733;</tspan> 猫冰 <tspan fill="#4169E1">&#9733;</tspan> MAOBING <tspan fill="#4169E1">&#9733;</tspan> 猫冰 <tspan fill="#4169E1">&#9733;</tspan> MAOBING <tspan fill="#4169E1">&#9733;</tspan> 猫冰 <tspan fill="#4169E1">&#9733;</tspan> MAOBING <tspan fill="#4169E1">&#9733;</tspan> 猫冰 <tspan fill="#4169E1">&#9733;</tspan> MAOBING <tspan fill="#4169E1">&#9733;</tspan> 猫冰
+        </textPath>
+      </text>
+    </svg>
+    <div class="hero-avatar-frame">
+      <div class="hero-avatar-placeholder">
+        <span class="icon">[ + ]</span>
+        add your<br>avatar here
+      </div>
     </div>
   </div>
 
