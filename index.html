@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" href="./src/MaoBings-head.png">
 <style>
 /* ========================================
    DESIGN TOKENS
@@ -1172,9 +1173,91 @@ html[data-theme="light"] .hero-avatar-ring text {
   fill: #333;
 }
 
+/* ========================================
+   BOOT LOADING SCREEN — 全屏终端启动加载
+   纯黑终端风格，模拟系统引导过程，
+   加载完成后淡出滑走并从 DOM 中彻底销毁。
+   ======================================== */
+#boot-screen {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  z-index: 9999;
+  background: #0d0e15;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  font-family: 'JetBrains Mono', 'Courier New', monospace;
+  font-size: 0.82rem;
+  line-height: 1.7;
+  padding: 28px 32px;
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* 退出动画：向上滑出 + 淡出 */
+#boot-screen.exit {
+  animation: bootSlideOut 0.7s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes bootSlideOut {
+  0%   { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-100vh); }
+}
+
+/* 每一行启动日志淡入 */
+.boot-log-line {
+  white-space: nowrap;
+  opacity: 0;
+  animation: bootLineIn 0.12s ease forwards;
+}
+
+@keyframes bootLineIn {
+  to { opacity: 1; }
+}
+
+/* 日志颜色分类 */
+.boot-log-line.info    { color: #00cc44; }
+.boot-log-line.warn    { color: #ffbd2e; }
+.boot-log-line.error   { color: #ff5f56; }
+.boot-log-line.success { color: #27c93f; font-weight: 700; }
+
+/* 底部进度条区域 */
+#boot-progress {
+  margin-top: 12px;
+  color: #ffbd2e;
+  white-space: nowrap;
+}
+
+/* 闪烁的下划线光标 */
+.boot-cursor {
+  display: inline-block;
+  color: #00cc44;
+  animation: bootCursorBlink 0.7s step-end infinite;
+}
+
+@keyframes bootCursorBlink {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0; }
+}
+
 </style>
 </head>
 <body>
+
+<!-- ========================================
+     BOOT LOADING SCREEN — 全屏终端启动加载
+     启动完成后自动淡出并从 DOM 中移除
+     ======================================== -->
+<div id="boot-screen">
+  <div id="boot-logs"></div>
+  <div id="boot-progress">
+    <span id="boot-progress-bar">[░░░░░░░░░░░░░░░░░░░░]</span>&nbsp;
+    <span id="boot-progress-pct">0%</span>
+    <span class="boot-cursor">&#9608;</span>
+  </div>
+</div>
 
 <!-- HAMBURGER MENU BUTTON -->
 <button class="hamburger" id="hamburgerBtn" aria-label="Toggle navigation menu">
@@ -2129,6 +2212,143 @@ html[data-theme="light"] .hero-avatar-ring text {
     });
   });
 })();
+
+	/* ========================================
+	   BOOT LOADING SCREEN — 模拟系统引导序列
+	   - 流式逐行打印启动日志
+	   - 随机延迟模拟真实终端节奏
+	   - 底部进度条从 0% 递增到 100%
+	   - 完成后淡出滑走，DOM 彻底销毁
+	   ======================================== */
+	(function() {
+	  var bootScreen = document.getElementById('boot-screen');
+	  var logContainer = document.getElementById('boot-logs');
+	  var progressBar = document.getElementById('boot-progress-bar');
+	  var progressPct = document.getElementById('boot-progress-pct');
+
+	  /* ---- 启动日志条目（消息 + 类型） ---- */
+	  var bootLogs = [
+	    { msg: '[ BIOS ] v2.14.0 — MaoBing Systems (R) Boot Agent',            type: 'info' },
+	    { msg: '[ BIOS ] CPU detected: Intel(R) Core(TM) i9-13900K @ 5.80GHz', type: 'info' },
+	    { msg: '[ BIOS ] Memory check: 65536MB OK',                             type: 'info' },
+	    { msg: '[ BIOS ] Initializing PCI Express devices...',                  type: 'info' },
+	    { msg: '[ ACPI ] Possible power management issue on port 0x1F',         type: 'warn' },
+	    { msg: '[ KRNL ] Mounting filesystem: ext4 on /dev/nvme0n1p2',          type: 'info' },
+	    { msg: '[ KRNL ] Loading kernel modules ........................ [OK]',  type: 'info' },
+	    { msg: '[ KRNL ] Starting network services: SSH, HTTP, WS',             type: 'info' },
+	    { msg: '[ KRNL ] Initializing GPU compute pipeline — CUDA 12.4',        type: 'info' },
+	    { msg: '[ NET  ] Firewall rule #42: rate-limiting enabled on port 443', type: 'warn' },
+	    { msg: '[ INIT ] Starting user-space daemons...',                       type: 'info' },
+	    { msg: '[ INIT ] Loading project: "MaoBing\'s Sanctuary"',              type: 'info' },
+	    { msg: '[SUCCESS] System Boot Complete. Welcome.',                      type: 'success' }
+	  ];
+
+	  /* ---- 总日志条数，用于计算进度百分比 ---- */
+	  var totalLogs = bootLogs.length;
+	  var currentIndex = 0;
+	  var progress = 0;
+	  var targetProgress = 0; // 目标进度值，progress 会用弹簧模型追赶它
+
+	  /* ---- 锁定 body 滚动，防止加载期间用户滚动 ---- */
+	  var prevOverflowX = document.body.style.overflowX || '';
+	  document.body.style.overflow = 'hidden';
+
+	  /* ---- 进度条动画（弹簧式追赶，数字平滑跳动） ---- */
+	  function updateProgressLoop() {
+	    // 弹簧追赶：每次逼近目标值的 12%
+	    progress += (targetProgress - progress) * 0.12;
+	    if (Math.abs(targetProgress - progress) < 0.3) {
+	      progress = targetProgress;
+	    }
+
+	    var pct = Math.round(progress);
+
+	    // 构造 20 格字符进度条：█ = 已加载  ░ = 未加载
+	    var filled = Math.round(pct / 5);
+	    var bar = '[';
+	    for (var i = 0; i < 20; i++) {
+	      bar += i < filled ? '█' : '░';
+	    }
+	    bar += ']';
+
+	    progressBar.textContent = bar;
+	    progressPct.textContent = pct + '%';
+
+	    if (progress < targetProgress || progress < 100) {
+	      requestAnimationFrame(updateProgressLoop);
+	    }
+	  }
+	  requestAnimationFrame(updateProgressLoop);
+
+	  /* ---- 打印一行启动日志到终端 ---- */
+	  function appendLog(log, callback) {
+	    var line = document.createElement('div');
+	    line.className = 'boot-log-line ' + (log.type || 'info');
+	    line.textContent = log.msg;
+	    logContainer.appendChild(line);
+
+	    // 自动滚动到底部
+	    logContainer.scrollTop = logContainer.scrollHeight;
+
+	    // 每打印一行更新目标进度（最后一行为 100%）
+	    currentIndex++;
+	    targetProgress = Math.round((currentIndex / totalLogs) * 100);
+
+	    /* 随机延迟：模拟真实终端有快有慢、偶尔停顿的打印节奏
+	       基础延迟 120ms + 0~220ms 随机抖动 + 15% 概率额外 300ms 停顿 */
+	    var baseDelay = 120;
+	    var jitter   = Math.random() * 220;
+	    var pause    = Math.random() < 0.15 ? 300 : 0;
+
+	    setTimeout(callback, baseDelay + jitter + pause);
+	  }
+
+	  /* ---- 顺序打印全部日志 ---- */
+	  function runBootSequence() {
+	    var i = 0;
+	    function next() {
+	      if (i >= bootLogs.length) {
+	        // 全部日志打印完毕，准备退出
+	        onBootComplete();
+	        return;
+	      }
+	      appendLog(bootLogs[i], function() {
+	        i++;
+	        next();
+	      });
+	    }
+	    next();
+	  }
+
+	  /* ---- 启动完毕：等待 500ms → 淡出退场 → 销毁 DOM ---- */
+	  function onBootComplete() {
+	    // 确保进度条显示 100%
+	    targetProgress = 100;
+
+	    setTimeout(function() {
+	      // 触发 CSS 退出动画（向上滑出 + 淡出）
+	      bootScreen.classList.add('exit');
+
+	      // 监听动画结束事件，彻底清理
+	      bootScreen.addEventListener('animationend', function cleanup() {
+	        bootScreen.removeEventListener('animationend', cleanup);
+
+	        // ★ 从 DOM 中彻底删除加载层节点，释放内存 ★
+	        if (bootScreen.parentNode) {
+	          bootScreen.parentNode.removeChild(bootScreen);
+	        }
+	        bootScreen = null;
+
+	        // ★ 恢复 body 滚动，让用户正常浏览主页面 ★
+	        document.body.style.overflow = '';
+	        document.body.style.overflowX = prevOverflowX || 'hidden';
+	      });
+	    }, 500); // 启动完成后的短暂停顿
+	  }
+
+	  /* ---- 开始启动！ ---- */
+	  runBootSequence();
+	})();
 
 </script>
 </body>

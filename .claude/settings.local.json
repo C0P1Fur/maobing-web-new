@@ -5,7 +5,8 @@
       "Bash(python -c \"print\\('ok'\\)\")",
       "Bash(python3 *)",
       "Bash(echo \"exit: $?\")",
-      "Bash(python *)"
+      "Bash(python *)",
+      "Bash(xxd)"
     ]
   }
 }
