@@ -295,10 +295,10 @@ a:hover { color: var(--lemon-yellow); }
   display: inline-block;
   width: 4px;
   height: 0.85em;
-  background: var(--lemon-yellow);
+  background: #999;
   margin-left: 4px;
   vertical-align: text-bottom;
-  animation: cursor-blink 0.8s steps(2) infinite;
+  animation: cursor-blink 1.2s steps(2) infinite;
 }
 
 @keyframes cursor-blink {
@@ -1759,20 +1759,24 @@ html[data-theme="light"] .hero-avatar-ring text {
     return cursor;
   }
 
-  function removeCursor() {
+  /* 将光标移动到指定元素末尾（先移除旧光标再创建新光标，始终保证只有一个光标在闪烁） */
+  function moveCursorTo(el) {
     if (cursorEl) { cursorEl.remove(); cursorEl = null; }
+    cursorEl = createCursor(el);
   }
 
+  /* 逐字输入 —— 使用 insertBefore 在光标前插入文本节点，保证光标不被销毁 */
   function typeText(el, text, speed, callback) {
-    let i = 0;
-    el.textContent = '';
-    cursorEl = createCursor(el);
+    var i = 0;
+    el.textContent = '';          // 清空行（此时光标也被清掉）
+    moveCursorTo(el);             // 重新创建光标
 
     function tick() {
       if (i < text.length) {
-        el.textContent += text[i];
+        var charNode = document.createTextNode(text[i]);
+        el.insertBefore(charNode, cursorEl); // 在光标 <span> 前插入字符
         i++;
-        const delay = text[i - 1] === ' ' ? speed * 2 : speed + Math.random() * 40;
+        var delay = text[i - 1] === ' ' ? speed * 2 : speed + Math.random() * 40;
         setTimeout(tick, delay);
       } else {
         if (callback) callback();
@@ -1780,6 +1784,28 @@ html[data-theme="light"] .hero-avatar-ring text {
     }
 
     setTimeout(tick, 200);
+  }
+
+  /* 逐字退格删除 —— 删除光标前一个文本节点，保证光标始终存在 */
+  function deleteText(el, speed, callback) {
+    moveCursorTo(el);
+
+    function tick() {
+      var prev = cursorEl.previousSibling;
+      // 只删除文本节点（空格也属于文本节点）
+      if (prev && prev.nodeType === Node.TEXT_NODE && prev.textContent.length > 0) {
+        var text = prev.textContent;
+        prev.textContent = text.substring(0, text.length - 1); // 删最后一个字符
+        if (prev.textContent.length === 0) {
+          el.removeChild(prev); // 文本节点已空则移除
+        }
+        setTimeout(tick, speed + Math.random() * 15);
+      } else {
+        if (callback) callback();
+      }
+    }
+
+    tick();
   }
 
   function typePair(pair) {
@@ -1791,18 +1817,23 @@ html[data-theme="light"] .hero-avatar-ring text {
     container.classList.add('hero-jump');
     setTimeout(() => container.classList.remove('hero-jump'), 300);
 
-    removeCursor();
     line1El.textContent = '';
     line2El.textContent = '';
 
+    // 光标始终跟随当前激活行，流程：打第一行 → 打第二行 → 停顿 → 删第二行 → 删第一行 → 下一组
     typeText(line1El, pair[0], 60, () => {
       typeText(line2El, pair[1], 50, () => {
-        isTyping = false;
-        // Pause then carousel to next
         setTimeout(() => {
-          pairIndex = (pairIndex + 1) % textPairs.length;
-          typePair(textPairs[pairIndex]);
-        }, 3000);
+          deleteText(line2El, 35, () => {
+            deleteText(line1El, 35, () => {
+              isTyping = false;
+              setTimeout(() => {
+                pairIndex = (pairIndex + 1) % textPairs.length;
+                typePair(textPairs[pairIndex]);
+              }, 800);
+            });
+          });
+        }, 2000);
       });
     });
   }
