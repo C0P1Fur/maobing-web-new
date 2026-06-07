@@ -1186,11 +1186,9 @@ html[data-theme="light"] .hero-avatar-ring text {
   background: #0d0e15;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
+  justify-content: center;
+  align-items: center;
   font-family: 'JetBrains Mono', 'Courier New', monospace;
-  font-size: 0.82rem;
-  line-height: 1.7;
-  padding: 28px 32px;
   overflow: hidden;
   user-select: none;
   -webkit-user-select: none;
@@ -1205,6 +1203,72 @@ html[data-theme="light"] .hero-avatar-ring text {
   0%   { opacity: 1; transform: translateY(0); }
   100% { opacity: 0; transform: translateY(-100vh); }
 }
+
+/* ---- macOS 风格终端框架 ---- */
+.boot-terminal {
+  width: 100%;
+  height: 100%;
+  border-radius: 0;
+  border: none;
+  background: rgba(0, 0, 0, 0.92);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 终端标题栏（红黄绿圆点 + 标题） */
+.boot-terminal-header {
+  display: flex;
+  align-items: center;
+  height: 34px;
+  padding: 0 14px;
+  background: rgba(30, 30, 40, 0.92);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  gap: 10px;
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.boot-terminal-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.boot-terminal-dot.red    { background: #ff5f56; }
+.boot-terminal-dot.yellow { background: #ffbd2e; }
+.boot-terminal-dot.green  { background: #27c93f; }
+
+.boot-terminal-label {
+  flex: 1;
+  text-align: center;
+  font-family: 'JetBrains Mono', 'Courier New', monospace;
+  font-size: 0.7rem;
+  color: #777;
+  letter-spacing: 0.3px;
+  margin-right: 50px; /* 视觉居中补偿 */
+}
+
+/* 终端内容区 */
+.boot-terminal-body {
+  flex: 1;
+  padding: 18px 24px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  font-size: 0.82rem;
+  line-height: 1.7;
+}
+
+/* ---- 日志 & 进度条（在终端体内） ---- */
+#boot-logs {
+  flex: 1;
+  overflow-y: auto;
+}
+
+#boot-logs::-webkit-scrollbar { width: 4px; }
+#boot-logs::-webkit-scrollbar-track { background: transparent; }
+#boot-logs::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 2px; }
 
 /* 每一行启动日志淡入 */
 .boot-log-line {
@@ -1225,9 +1289,33 @@ html[data-theme="light"] .hero-avatar-ring text {
 
 /* 底部进度条区域 */
 #boot-progress {
-  margin-top: 12px;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
   color: #ffbd2e;
   white-space: nowrap;
+  font-size: 1.05rem;
+  letter-spacing: 1px;
+}
+
+#boot-progress-label {
+  display: block;
+  font-size: 1.2rem;
+  color: whitesmoke;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+
+/* 字符跳跃波浪动画 */
+.boot-char {
+  display: inline-block;
+  animation: charJump 1.4s ease-in-out infinite;
+}
+
+@keyframes charJump {
+  0%, 100% { transform: translateY(0); }
+  30%      { transform: translateY(-10px); }
+  60%      { transform: translateY(0); }
 }
 
 /* 闪烁的下划线光标 */
@@ -1251,11 +1339,24 @@ html[data-theme="light"] .hero-avatar-ring text {
      启动完成后自动淡出并从 DOM 中移除
      ======================================== -->
 <div id="boot-screen">
-  <div id="boot-logs"></div>
-  <div id="boot-progress">
-    <span id="boot-progress-bar">[░░░░░░░░░░░░░░░░░░░░]</span>&nbsp;
-    <span id="boot-progress-pct">0%</span>
-    <span class="boot-cursor">&#9608;</span>
+  <div class="boot-terminal">
+    <div class="boot-terminal-header">
+      <div class="boot-terminal-dot red"></div>
+      <div class="boot-terminal-dot yellow"></div>
+      <div class="boot-terminal-dot green"></div>
+      <span class="boot-terminal-label">maobing@sanctuary — bash — 80×24</span>
+    </div>
+    <div class="boot-terminal-body">
+      <div id="boot-logs"></div>
+      <div id="boot-progress">
+        <span id="boot-progress-label">
+        <span class="boot-char" style="animation-delay:0.00s">B</span><span class="boot-char" style="animation-delay:0.07s">o</span><span class="boot-char" style="animation-delay:0.14s">o</span><span class="boot-char" style="animation-delay:0.21s">t</span><span class="boot-char" style="animation-delay:0.28s">i</span><span class="boot-char" style="animation-delay:0.35s">n</span><span class="boot-char" style="animation-delay:0.42s">g</span><span class="boot-char" style="animation-delay:0.49s">&nbsp;</span><span class="boot-char" style="animation-delay:0.56s">m</span><span class="boot-char" style="animation-delay:0.63s">a</span><span class="boot-char" style="animation-delay:0.70s">o</span><span class="boot-char" style="animation-delay:0.77s">b</span><span class="boot-char" style="animation-delay:0.84s">i</span><span class="boot-char" style="animation-delay:0.91s">n</span><span class="boot-char" style="animation-delay:0.98s">g</span><span class="boot-char" style="animation-delay:1.05s">O</span><span class="boot-char" style="animation-delay:1.12s">S</span><span class="boot-char" style="animation-delay:1.19s">.</span><span class="boot-char" style="animation-delay:1.26s">.</span><span class="boot-char" style="animation-delay:1.33s">.</span>
+      </span>
+        <span id="boot-progress-bar">[░░░░░░░░░░░░░░░░░░░░]</span>&nbsp;
+        <span id="boot-progress-pct">0%</span>
+        <span class="boot-cursor">&#9608;</span>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -2296,9 +2397,9 @@ html[data-theme="light"] .hero-avatar-ring text {
 
 	    /* 随机延迟：模拟真实终端有快有慢、偶尔停顿的打印节奏
 	       基础延迟 120ms + 0~220ms 随机抖动 + 15% 概率额外 300ms 停顿 */
-	    var baseDelay = 120;
-	    var jitter   = Math.random() * 220;
-	    var pause    = Math.random() < 0.15 ? 300 : 0;
+	    var baseDelay = 50;
+	    var jitter   = Math.random() * 100;
+	    var pause    = Math.random() < 0.10 ? 160 : 0;
 
 	    setTimeout(callback, baseDelay + jitter + pause);
 	  }
@@ -2343,7 +2444,7 @@ html[data-theme="light"] .hero-avatar-ring text {
 	        document.body.style.overflow = '';
 	        document.body.style.overflowX = prevOverflowX || 'hidden';
 	      });
-	    }, 500); // 启动完成后的短暂停顿
+	    }, 1200); // 启动完成后停顿，让用户看清 [SUCCESS] 提示
 	  }
 
 	  /* ---- 开始启动！ ---- */
