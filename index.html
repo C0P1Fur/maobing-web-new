@@ -970,7 +970,7 @@ a:hover { color: var(--lemon-yellow); }
   z-index: 999;
   width: 300px;
   height: 100vh;
-  background: rgba(14, 14, 26, 0.92);
+  background: rgba(14, 14, 26, 0.7);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border-right: 1px solid var(--glass-border);
@@ -1000,14 +1000,6 @@ a:hover { color: var(--lemon-yellow); }
   color: var(--royal-blue);
 }
 
-.sidebar-divider {
-  width: 40px;
-  height: 2px;
-  background: var(--lemon-yellow);
-  margin-bottom: 40px;
-  border-radius: 1px;
-}
-
 .sidebar-nav {
   display: flex;
   flex-direction: column;
@@ -1018,7 +1010,7 @@ a:hover { color: var(--lemon-yellow); }
 .sidebar-link {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 10px;
   padding: 14px 16px;
   font-family: var(--font-mono);
   font-size: 0.9rem;
@@ -1028,6 +1020,19 @@ a:hover { color: var(--lemon-yellow); }
   cursor: url('src/cursor-default.png') 1 1, pointer;
   text-decoration: none;
   border: 1px solid transparent;
+  position: relative;
+}
+
+.sidebar-link::before {
+  content: '';
+  font-family: var(--font-mono);
+  color: var(--lemon-yellow);
+  font-size: 0.85rem;
+  width: 0;
+  overflow: hidden;
+  transition: width 0.25s ease, opacity 0.25s ease;
+  opacity: 0;
+  flex-shrink: 0;
 }
 
 .sidebar-link:hover {
@@ -1036,18 +1041,10 @@ a:hover { color: var(--lemon-yellow); }
   border-color: var(--glass-border);
 }
 
-.sidebar-link .link-icon {
-  font-size: 1rem;
-  width: 24px;
-  text-align: center;
-  flex-shrink: 0;
-}
-
-.sidebar-link .link-num {
-  font-size: 0.7rem;
-  color: var(--royal-blue);
-  margin-left: auto;
-  opacity: 0.7;
+.sidebar-link:hover::before {
+  content: '>';
+  width: 12px;
+  opacity: 1;
 }
 
 .sidebar-footer {
@@ -1422,28 +1419,19 @@ html[data-theme="light"] .hero-avatar-ring text {
 
 <!-- SIDEBAR NAVIGATION -->
 <aside class="sidebar" id="sidebar">
-  <div class="sidebar-brand">MAOBING<span class="accent">.log</span></div>
-  <div class="sidebar-divider"></div>
+  <div class="sidebar-brand">MAOBING<span class="accent">.TOP</span></div>
   <nav class="sidebar-nav">
-    <a class="sidebar-link" href="#home" data-nav>
-      <span class="link-icon">~</span>
+    <a class="sidebar-link active" href="#home" data-nav>
       <span>Home</span>
-      <span class="link-num">00</span>
     </a>
     <a class="sidebar-link" href="#about" data-nav>
-      <span class="link-icon">&gt;</span>
       <span>About</span>
-      <span class="link-num">01</span>
     </a>
     <a class="sidebar-link" href="#gallery" data-nav>
-      <span class="link-icon">{}</span>
       <span>Projects</span>
-      <span class="link-num">02</span>
     </a>
     <a class="sidebar-link" href="#friends" data-nav>
-      <span class="link-icon">@</span>
       <span>Friends</span>
-      <span class="link-num">03</span>
     </a>
   </nav>
   <div class="sidebar-footer">
