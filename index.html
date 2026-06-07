@@ -143,7 +143,6 @@ a:hover { color: var(--lemon-yellow); }
   opacity: 0.8;
 }
 
-.section-label::before { content: '// '; }
 .section-title {
   font-family: var(--font-mono);
   font-size: clamp(1.5rem, 3vw, 2.2rem);
@@ -153,13 +152,6 @@ a:hover { color: var(--lemon-yellow); }
   position: relative;
 }
 
-.section-title::after {
-  content: '';
-  display: block;
-  width: 60px; height: 2px;
-  background: var(--lemon-yellow);
-  margin: 16px auto 0;
-}
 
 /* ========================================
    HERO / HOMEPAGE (Section 1)
@@ -489,257 +481,9 @@ a:hover { color: var(--lemon-yellow); }
   50%      { opacity: 1; transform: scale(1.15); }
 }
 
-/* ========================================
-   COVER FLOW / PERSONAL INTRO (Section 2)
-   ======================================== */
-.coverflow-container {
-  width: 100%;
-  max-width: 900px;
-  height: 420px;
-  perspective: 1200px;
-  perspective-origin: 50% 50%;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.coverflow-track {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  transform-style: preserve-3d;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.coverflow-card {
-  position: absolute;
-  width: 320px;
-  max-width: 80vw;
-  padding: 32px 28px;
-  background: var(--glass-bg);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius-lg);
-  text-align: center;
-  cursor: url('src/cursor-default.png') 1 1, pointer;
-  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1),
-              opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1),
-              border-color 0.3s ease,
-              box-shadow 0.3s ease;
-  user-select: none;
-}
-
-.coverflow-card.active {
-  border-color: var(--glass-border-hover);
-  box-shadow: 0 0 40px var(--royal-blue-glow), 0 0 80px rgba(65, 105, 225, 0.1);
-}
-
-.coverflow-card-icon {
-  font-size: 2.2rem;
-  margin-bottom: 16px;
-  display: block;
-  font-family: var(--font-mono);
-}
-
-.coverflow-card-title {
-  font-family: var(--font-mono);
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin-bottom: 12px;
-}
-
-.coverflow-card-desc {
-  font-size: 0.9rem;
-  color: var(--text-secondary);
-  line-height: 1.5;
-}
-
-.coverflow-nav {
-  display: flex;
-  gap: 24px;
-  margin-top: 24px;
-  z-index: 10;
-}
-
-.coverflow-nav button {
-  width: 44px; height: 44px;
-  border-radius: 50%;
-  border: 1px solid var(--glass-border);
-  background: var(--glass-bg);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  color: var(--text-primary);
-  font-size: 1.2rem;
-  cursor: url('src/cursor-default.png') 1 1, pointer;
-  transition: all var(--transition-fast);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.coverflow-nav button:hover {
-  border-color: var(--royal-blue);
-  box-shadow: 0 0 20px var(--royal-blue-glow);
-  color: var(--lemon-yellow);
-}
-
-.coverflow-dots {
-  display: flex;
-  gap: 8px;
-  margin-top: 16px;
-}
-
-.coverflow-dot {
-  width: 8px; height: 8px;
-  border-radius: 50%;
-  background: var(--text-dim);
-  border: none;
-  cursor: url('src/cursor-default.png') 1 1, pointer;
-  transition: all var(--transition-fast);
-}
-
-.coverflow-dot.active {
-  background: var(--lemon-yellow);
-  box-shadow: 0 0 8px var(--lemon-yellow-glow);
-  width: 24px;
-  border-radius: 4px;
-}
 
 /* ========================================
-   GALLERY CAROUSEL (Section 3) - Center Focus
-   ======================================== */
-.gallery-stage {
-  position: relative;
-  width: 100%;
-  max-width: 900px;
-  height: 420px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-}
-
-.gallery-card {
-  position: absolute;
-  width: 360px;
-  max-width: 72vw;
-  height: 380px;
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--glass-border);
-  background: var(--glass-bg);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  overflow: hidden;
-  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1),
-              opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1),
-              border-color 0.3s ease,
-              box-shadow 0.3s ease;
-  cursor: url('src/cursor-default.png') 1 1, pointer;
-  display: flex;
-  flex-direction: column;
-}
-
-.gallery-card.focused {
-  border-color: var(--glass-border-hover);
-  box-shadow: 0 0 40px var(--royal-blue-glow), 0 8px 32px rgba(0, 0, 0, 0.5);
-  z-index: 10;
-}
-
-.gallery-card-image {
-  height: 200px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--font-mono);
-  font-size: 3rem;
-  color: rgba(255,255,255,0.15);
-  position: relative;
-  overflow: hidden;
-}
-
-.gallery-card-image::after {
-  content: '';
-  position: absolute;
-  bottom: 0; left: 0; right: 0;
-  height: 40%;
-  background: linear-gradient(to top, var(--bg-surface), transparent);
-}
-
-.gallery-card-info {
-  padding: 20px 24px;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.gallery-card-info h3 {
-  font-family: var(--font-mono);
-  font-size: 1rem;
-  font-weight: 700;
-  color: var(--text-primary);
-}
-
-.gallery-card-info p {
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-  line-height: 1.4;
-}
-
-.gallery-card-tag {
-  display: inline-block;
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
-  padding: 4px 10px;
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius-sm);
-  color: var(--royal-blue);
-  margin-top: auto;
-  align-self: flex-start;
-}
-
-.gallery-controls {
-  display: flex;
-  align-items: center;
-  gap: 24px;
-  margin-top: 12px;
-}
-
-.gallery-controls button {
-  width: 48px; height: 48px;
-  border-radius: 50%;
-  border: 1px solid var(--glass-border);
-  background: var(--glass-bg);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  color: var(--text-primary);
-  font-size: 1.3rem;
-  cursor: url('src/cursor-default.png') 1 1, pointer;
-  transition: all var(--transition-fast);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.gallery-controls button:hover {
-  border-color: var(--royal-blue);
-  box-shadow: 0 0 20px var(--royal-blue-glow);
-  color: var(--lemon-yellow);
-}
-
-.gallery-indicator {
-  font-family: var(--font-mono);
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-}
-
-/* ========================================
-   FRIEND LINKS (Section 4) - Cascade
+   FRIEND LINKS (Section 2) - Cascade
    ======================================== */
 .friend-links-grid {
   display: grid;
@@ -785,12 +529,14 @@ a:hover { color: var(--lemon-yellow); }
   font-family: var(--font-mono);
   font-size: 1rem;
   font-weight: 700;
+  font-family: 'JetBrains Mono', 'PingFang SC', 'Microsoft YaHei', sans-serif;
   color: var(--text-primary);
   margin-bottom: 8px;
 }
 
 .friend-link-desc {
   font-size: 0.85rem;
+  font-family: 'JetBrains Mono', 'PingFang SC', 'Microsoft YaHei', sans-serif;
   color: var(--text-secondary);
   margin-bottom: 16px;
   line-height: 1.4;
@@ -867,12 +613,6 @@ a:hover { color: var(--lemon-yellow); }
   .hero-avatar-wrapper { width: 200px; height: 200px; }
   .hero-subtitle { text-align: center; }
 
-  .coverflow-container { height: 360px; }
-  .coverflow-card { width: 260px; padding: 24px 20px; }
-
-  .gallery-card { width: 300px; max-width: 75vw; height: 340px; }
-  .gallery-stage { height: 380px; }
-
   .friend-links-grid {
     grid-template-columns: 1fr;
   }
@@ -886,8 +626,6 @@ a:hover { color: var(--lemon-yellow); }
 
 @media (max-width: 480px) {
   .section { padding: 60px 16px; }
-  .coverflow-container { height: 320px; }
-  .coverflow-card { width: 240px; padding: 20px 16px; }
 }
 /* ========================================
    HAMBURGER MENU BUTTON
@@ -1424,12 +1162,6 @@ html[data-theme="light"] .hero-avatar-ring text {
     <a class="sidebar-link active" href="#home" data-nav>
       <span>Home</span>
     </a>
-    <a class="sidebar-link" href="#about" data-nav>
-      <span>About</span>
-    </a>
-    <a class="sidebar-link" href="#gallery" data-nav>
-      <span>Projects</span>
-    </a>
     <a class="sidebar-link" href="#friends" data-nav>
       <span>Friends</span>
     </a>
@@ -1479,11 +1211,11 @@ html[data-theme="light"] .hero-avatar-ring text {
                 font-weight="600" letter-spacing="2" text-anchor="middle">
             <textPath href="#textCircle" startOffset="25%">
               MAOBING <tspan fill="#4169E1">&#128049;</tspan>
-              猫冰 <tspan fill="#4169E1">&#129475;</tspan>
+              猫冰 <tspan fill="#4169E1">&#129482;</tspan>
               MAOBING <tspan fill="#4169E1">&#128049;</tspan>
-              猫冰 <tspan fill="#4169E1">&#129475;</tspan>
+              猫冰 <tspan fill="#4169E1">&#129482;</tspan>
               MAOBING <tspan fill="#4169E1">&#128049;</tspan>
-              猫冰 <tspan fill="#4169E1">&#129475;</tspan>
+              猫冰 <tspan fill="#4169E1">&#129482;</tspan>
               MAOBING <tspan fill="#4169E1">&#128049;</tspan>
               猫冰 
             </textPath>
@@ -1496,45 +1228,15 @@ html[data-theme="light"] .hero-avatar-ring text {
     </div>
   </div>
 
-  <div class="hero-scroll-hint" onclick="window.scrollTo({top:document.getElementById('about').offsetTop,behavior:'smooth'})">
+  <div class="hero-scroll-hint" onclick="window.scrollTo({top:document.getElementById('friends').offsetTop,behavior:'smooth'})">
     [ scroll down ]
   </div>
 </section>
 
-<!-- SECTION 2: COVER FLOW / PERSONAL INTRO -->
-<section class="section" id="about">
-  <div class="section-label">About Me</div>
-  <h2 class="section-title">>_ whoami</h2>
-
-  <div class="coverflow-container" id="coverflowContainer">
-    <div class="coverflow-track" id="coverflowTrack"></div>
-  </div>
-
-  <div class="coverflow-nav">
-    <button id="cfPrev" aria-label="Previous">&#10094;</button>
-    <div class="coverflow-dots" id="coverflowDots"></div>
-    <button id="cfNext" aria-label="Next">&#10095;</button>
-  </div>
-</section>
-
-<!-- SECTION 3: GALLERY CAROUSEL -->
-<section class="section" id="gallery">
-  <div class="section-label">Portfolio</div>
-  <h2 class="section-title">// projects</h2>
-
-  <div class="gallery-stage" id="galleryStage"></div>
-
-  <div class="gallery-controls">
-    <button id="galPrev" aria-label="Previous">&#10094;</button>
-    <span class="gallery-indicator" id="galIndicator">1 / 6</span>
-    <button id="galNext" aria-label="Next">&#10095;</button>
-  </div>
-</section>
-
-<!-- SECTION 4: FRIEND LINKS -->
+<!-- SECTION 2: FRIEND LINKS -->
 <section class="section" id="friends">
   <div class="section-label">Friends</div>
-  <h2 class="section-title">// links &amp; friends</h2>
+  <h2 class="section-title">links &amp; friends</h2>
 
   <div class="friend-links-grid" id="friendLinksGrid"></div>
 </section>
@@ -1867,234 +1569,15 @@ html[data-theme="light"] .hero-avatar-ring text {
 })();
 
 /* ========================================
-   COVER FLOW
-   ======================================== */
-(function() {
-  const cards = [
-    { icon: '</>', title: 'Full-Stack Developer', desc: 'Building end-to-end solutions with React, Vue, Node.js, and cloud-native technologies. Turning ideas into scalable products.' },
-    { icon: '{ }', title: 'Open Source Contributor', desc: 'Active in the open-source community. Believing code wants to be free and collaboration drives innovation forward.' },
-    { icon: '/*!', title: 'Tech Blogger', desc: 'Sharing insights through technical articles. Making complex concepts accessible with clear explanations and practical examples.' },
-    { icon: '[]', title: 'UI/UX Crafter', desc: 'Obsessed with pixel-perfect interfaces and smooth interactions. Design is not just how it looks, but how it works.' },
-    { icon: '>>', title: 'Lifelong Learner', desc: 'Constantly exploring emerging technologies, from AI to WebAssembly. The best investment is in knowledge.' },
-  ];
-
-  const track = document.getElementById('coverflowTrack');
-  const dotsContainer = document.getElementById('coverflowDots');
-  let activeIndex = 2;
-
-  function render() {
-    track.innerHTML = '';
-    dotsContainer.innerHTML = '';
-
-    cards.forEach((card, i) => {
-      const el = document.createElement('div');
-      el.className = 'coverflow-card' + (i === activeIndex ? ' active' : '');
-      el.innerHTML = `
-        <span class="coverflow-card-icon">${card.icon}</span>
-        <h3 class="coverflow-card-title">${card.title}</h3>
-        <p class="coverflow-card-desc">${card.desc}</p>
-      `;
-      el.addEventListener('click', () => setActive(i));
-
-      const offset = i - activeIndex;
-      const absOff = Math.abs(offset);
-      const sign = offset === 0 ? 0 : offset > 0 ? 1 : -1;
-
-      const translateX = offset * 280;
-      const rotateY = sign * absOff * 35;
-      const translateZ = -absOff * 180;
-      const scale = 1 - absOff * 0.12;
-      const opacity = absOff === 0 ? 1 : absOff === 1 ? 0.7 : 0.35;
-      const zIndex = 10 - absOff;
-
-      el.style.transform = `translateX(${translateX}px) rotateY(${rotateY}deg) translateZ(${translateZ}px) scale(${scale})`;
-      el.style.opacity = Math.max(0, opacity);
-      el.style.zIndex = zIndex;
-      el.style.pointerEvents = absOff <= 1 ? 'auto' : 'none';
-
-      track.appendChild(el);
-
-      // Dot
-      const dot = document.createElement('button');
-      dot.className = 'coverflow-dot' + (i === activeIndex ? ' active' : '');
-      dot.addEventListener('click', () => setActive(i));
-      dot.setAttribute('aria-label', `Go to card ${i + 1}`);
-      dotsContainer.appendChild(dot);
-    });
-  }
-
-  function setActive(i) {
-    if (i < 0) i = cards.length - 1;
-    if (i >= cards.length) i = 0;
-    activeIndex = i;
-    render();
-  }
-
-  document.getElementById('cfPrev').addEventListener('click', () => setActive(activeIndex - 1));
-  document.getElementById('cfNext').addEventListener('click', () => setActive(activeIndex + 1));
-
-  // Keyboard (only when coverflow section is visible)
-  document.addEventListener('keydown', (e) => {
-    const rect = document.getElementById('coverflowContainer').getBoundingClientRect();
-    if (rect.top > window.innerHeight || rect.bottom < 0) return;
-    if (e.key === 'ArrowLeft') { e.preventDefault(); setActive(activeIndex - 1); }
-    if (e.key === 'ArrowRight') { e.preventDefault(); setActive(activeIndex + 1); }
-  });
-
-  // Touch swipe
-  let touchStartX = 0;
-  track.addEventListener('touchstart', (e) => { touchStartX = e.touches[0].clientX; });
-  track.addEventListener('touchend', (e) => {
-    const diff = touchStartX - e.changedTouches[0].clientX;
-    if (Math.abs(diff) > 50) {
-      setActive(activeIndex + (diff > 0 ? 1 : -1));
-    }
-  });
-
-  render();
-})();
-
-/* ========================================
-   GALLERY CAROUSEL - Center Focus
-   ======================================== */
-(function() {
-  const projects = [
-    { title: 'Project Alpha', desc: 'Real-time collaborative editor with WebSocket sync and CRDT-based conflict resolution.', tag: 'React / Node.js', color: '#4169E1' },
-    { title: 'Project Beta', desc: 'ML model visualization dashboard with interactive data flow graphs.', tag: 'Python / D3.js', color: '#FFD700' },
-    { title: 'Project Gamma', desc: 'High-performance CLI framework for automating DevOps workflows.', tag: 'Rust / Go', color: '#00CED1' },
-    { title: 'Project Delta', desc: 'Mobile-first design system with 50+ accessible components.', tag: 'Vue / Storybook', color: '#FF6B6B' },
-    { title: 'Project Epsilon', desc: 'Cloud infrastructure monitoring with real-time alerting and auto-scaling.', tag: 'AWS / Terraform', color: '#7B68EE' },
-    { title: 'Project Zeta', desc: 'Developer productivity toolkit with smart code generation and refactoring tools.', tag: 'TypeScript / AST', color: '#2ECC71' },
-  ];
-
-  const stage = document.getElementById('galleryStage');
-  const indicator = document.getElementById('galIndicator');
-  let activeIndex = 0;
-  const cards = [];
-
-  function createCards() {
-    stage.innerHTML = '';
-    cards.length = 0;
-    projects.forEach((proj, i) => {
-      const el = document.createElement('div');
-      el.className = 'gallery-card';
-      el.innerHTML = `
-        <div class="gallery-card-image" style="background:linear-gradient(135deg, ${proj.color}22, ${proj.color}08)">
-          <span style="font-size:4rem;opacity:0.15;font-family:var(--font-mono)">{${i}}</span>
-        </div>
-        <div class="gallery-card-info">
-          <h3>${proj.title}</h3>
-          <p>${proj.desc}</p>
-          <span class="gallery-card-tag">${proj.tag}</span>
-        </div>
-      `;
-      el.addEventListener('click', () => {
-        if (i !== activeIndex) setActive(i);
-      });
-      stage.appendChild(el);
-      cards.push(el);
-    });
-    updatePositions();
-  }
-
-  function updatePositions() {
-    cards.forEach((card, i) => {
-      const offset = i - activeIndex;
-      const absOff = Math.abs(offset);
-      const sign = offset === 0 ? 0 : offset > 0 ? 1 : -1;
-
-      card.classList.toggle('focused', offset === 0);
-
-      if (absOff === 0) {
-        card.style.transform = 'translateX(0) scale(1)';
-        card.style.opacity = '1';
-        card.style.zIndex = '10';
-        card.style.pointerEvents = 'auto';
-        card.style.filter = 'none';
-      } else if (absOff === 1) {
-        const x = sign * 56 + '%';
-        card.style.transform = `translateX(${x}) scale(0.82)`;
-        card.style.opacity = '0.55';
-        card.style.zIndex = '5';
-        card.style.pointerEvents = 'auto';
-        card.style.filter = 'brightness(0.7)';
-      } else {
-        const x = sign * 72 + '%';
-        card.style.transform = `translateX(${x}) scale(0.65)`;
-        card.style.opacity = '0';
-        card.style.zIndex = '1';
-        card.style.pointerEvents = 'none';
-        card.style.filter = 'brightness(0.5)';
-      }
-    });
-
-    indicator.textContent = `${activeIndex + 1} / ${projects.length}`;
-  }
-
-  function setActive(i) {
-    if (i < 0) i = projects.length - 1;
-    if (i >= projects.length) i = 0;
-    activeIndex = i;
-    updatePositions();
-  }
-
-  document.getElementById('galPrev').addEventListener('click', () => setActive(activeIndex - 1));
-  document.getElementById('galNext').addEventListener('click', () => setActive(activeIndex + 1));
-
-  // Touch swipe
-  let touchStartX = 0;
-  stage.addEventListener('touchstart', (e) => { touchStartX = e.touches[0].clientX; });
-  stage.addEventListener('touchend', (e) => {
-    const diff = touchStartX - e.changedTouches[0].clientX;
-    if (Math.abs(diff) > 40) setActive(activeIndex + (diff > 0 ? 1 : -1));
-  });
-
-  // Mouse drag
-  let isDragging = false;
-  let dragStartX = 0;
-  stage.addEventListener('mousedown', (e) => {
-    isDragging = true;
-    dragStartX = e.clientX;
-    cards.forEach(c => { c.style.transition = 'none'; });
-  });
-  window.addEventListener('mousemove', (e) => {
-    if (!isDragging) return;
-    e.preventDefault();
-  });
-  window.addEventListener('mouseup', (e) => {
-    if (!isDragging) return;
-    isDragging = false;
-    cards.forEach(c => { c.style.transition = ''; });
-    const diff = dragStartX - e.clientX;
-    if (Math.abs(diff) > 60) {
-      setActive(activeIndex + (diff > 0 ? 1 : -1));
-    }
-  });
-
-  // Keyboard navigation when gallery is in view
-  document.addEventListener('keydown', (e) => {
-    const rect = stage.getBoundingClientRect();
-    const inView = rect.top < window.innerHeight && rect.bottom > 0;
-    if (!inView) return;
-    if (e.key === 'ArrowLeft') { e.preventDefault(); setActive(activeIndex - 1); }
-    if (e.key === 'ArrowRight') { e.preventDefault(); setActive(activeIndex + 1); }
-  });
-
-  createCards();
-  window.addEventListener('resize', updatePositions);
-})();
-
-/* ========================================
    FRIEND LINKS - CASCADE ANIMATION
    ======================================== */
 (function() {
   const links = [
-    { name: 'TechBlog Pro', desc: '前沿技术深度解析与行业趋势洞察', url: '#' },
-    { name: 'Code & Beyond', desc: '编程技巧、架构设计与最佳实践分享', url: '#' },
-    { name: 'Pixel Perfect', desc: 'UI/UX 设计灵感与前端动效探索', url: '#' },
-    { name: 'Data Driven', desc: '数据科学、机器学习与可视化技术', url: '#' },
-    { name: 'Open Dev', desc: '开源项目、社区贡献与开发者工具', url: '#' },
-    { name: 'Cloud Native', desc: '云原生架构、DevOps 与基础设施', url: '#' },
+    { name: '天旭', desc: '神秘小龙虾', url: '#' },
+    { name: '林风', desc: 'AAA电脑维修林师傅', url: '#' },
+    { name: 'MeTの主页', desc: 'Stay Hungry, Stay Foolish', url: '#' },
+    { name: '凌蓝', desc: '凌蓝s small online lab', url: '#' },
+    { name: '更多页面正在开发中...', desc: '敬请期待', url: '#' }
   ];
 
   const grid = document.getElementById('friendLinksGrid');
